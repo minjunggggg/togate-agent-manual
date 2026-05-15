@@ -44,6 +44,7 @@
             <a href="#routes"><span class="icon">🌐</span> 라우트 구조</a>
             <a href="#components"><span class="icon">🧩</span> 공용 컴포넌트</a>
             <a href="#cron"><span class="icon">⏰</span> Vercel Cron</a>
+            <a href="#env-vars"><span class="icon">⚙️</span> 환경변수</a>
             <a href="#dev-commands"><span class="icon">💻</span> 개발 명령어</a>
         </nav>
         <div class="sidebar-footer">
@@ -74,7 +75,8 @@
             <!-- 1. OVERVIEW -->
             <section id="overview">
                 <h3><span class="section-icon">📋</span> 프로젝트 소개</h3>
-                <p><strong>Togate</strong>는 모바일 웹 기반 PWA 사내앱입니다. AI 음성 회의록, 일정/연차 관리, 공지사항, 비상연락망, 웹 푸시 알림 기능을 포함하며
+                <p><strong>Togate-agent</strong>는 모바일 웹 기반 PWA 사내앱입니다. AI 음성 회의록, 일정/연차 관리, 공지사항, 비상연락망, 웹 푸시 알림 기능을
+                    포함하며
                     Capacitor 8을 통해 iOS 네이티브 앱으로도 배포됩니다.</p>
 
                 <div class="info-box note">
@@ -184,7 +186,8 @@
                 <p>Next.js App Router 구조를 따르며, 모든 소스 코드는 <code style="font-family:var(--font-mono)">src/</code> 디렉토리 아래에
                     위치합니다.</p>
 
-                <div class="file-tree"><pre>src
+                <div class="file-tree">
+                    <pre>src
 ├── app
 │   ├── (app)
 │   │   ├── (home)
@@ -423,7 +426,9 @@
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/lib/db.ts</code>
                             </td>
                             <td>Prisma 클라이언트 싱글턴. <code
-                                    style="font-family:var(--font-mono);font-size:12px">PrismaPg</code> 어댑터 주입 필수</td>
+                                    style="font-family:var(--font-mono);font-size:12px">globalThis</code>로 HMR 중복 생성 방지.
+                                <code style="font-family:var(--font-mono);font-size:12px">export const prisma</code>로 사용
+                            </td>
                         </tr>
                         <tr>
                             <td><code
@@ -436,7 +441,7 @@
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/lib/ai/provider.ts</code>
                             </td>
                             <td>AI 추상화 레이어. <code
-                                    style="font-family:var(--font-mono);font-size:12px">getAIProvider()</code>를 호출하면
+                                    style="font-family:var(--font-mono);font-size:12px">AIProvider()</code>를 호출하면
                                 <code style="font-family:var(--font-mono);font-size:12px">AI_PROVIDER</code> env에 따라
                                 Gemini 또는 OpenAI 반환
                             </td>
@@ -446,8 +451,8 @@
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/lib/push.ts</code>
                             </td>
                             <td>웹 푸시 발송. <code
-                                    style="font-family:var(--font-mono);font-size:12px">sendPushToAll()</code> — 만료된
-                                구독(410/404)은 자동 삭제</td>
+                                    style="font-family:var(--font-mono);font-size:12px">sendPushToUser(userId, payload)</code>
+                                — 특정 유저의 모든 구독에 병렬 발송. VAPID 설정은 첫 호출 시 1회만 초기화. 만료된 구독(410)은 자동 삭제</td>
                         </tr>
                         <tr>
                             <td><code
@@ -461,9 +466,11 @@
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">prisma.config.ts</code>
                             </td>
-                            <td>Prisma 7 설정 파일. <code
-                                    style="font-family:var(--font-mono);font-size:12px">DATABASE_URL</code> 등 datasource
-                                설정 처리</td>
+                            <td>Prisma 7 설정 파일. 스키마·마이그레이션 경로, 시드 명령어(<code
+                                    style="font-family:var(--font-mono);font-size:12px">npx tsx prisma/seed.ts</code>),
+                                <code style="font-family:var(--font-mono);font-size:12px">DATABASE_URL</code> datasource
+                                URL을 한 곳에서 관리
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -492,11 +499,21 @@
                         </div>
                         <button class="copy-btn" onclick="copyCode(this)">복사</button>
                     </div>
-                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaPg</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@prisma/adapter-pg"</span>
-<span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaClient</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/generated/prisma/client"</span>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaClient</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/generated/prisma/client"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaPg</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@prisma/adapter-pg"</span>
 
-<span class="kw">const</span> adapter <span class="op">=</span> <span class="kw">new</span> <span class="fn">PrismaPg</span><span class="op">({</span> connectionString<span class="op">:</span> process.env.DATABASE_URL <span class="op">})</span>
-<span class="kw">export const</span> db <span class="op">=</span> <span class="kw">new</span> <span class="fn">PrismaClient</span><span class="op">({</span> adapter <span class="op">})</span></pre>
+<span class="kw">const</span> globalForPrisma <span class="op">=</span> globalThis <span class="kw">as unknown as</span> <span class="op">{</span>
+  prisma<span class="op">:</span> <span class="ty">PrismaClient</span> <span class="op">|</span> <span class="kw">undefined</span>
+<span class="op">}</span>
+
+<span class="kw">function</span> <span class="fn">createPrismaClient</span><span class="op">() {</span>
+  <span class="kw">const</span> adapter <span class="op">=</span> <span class="kw">new</span> <span class="fn">PrismaPg</span><span class="op">({</span> connectionString<span class="op">:</span> process.env.DATABASE_URL<span class="op">! })</span>
+  <span class="kw">return new</span> <span class="fn">PrismaClient</span><span class="op">({</span> adapter<span class="op">,</span> log<span class="op">: [</span><span class="str">"error"</span><span class="op">] })</span>
+<span class="op">}</span>
+
+<span class="kw">export const</span> prisma <span class="op">=</span> globalForPrisma.prisma <span class="op">??</span> <span class="fn">createPrismaClient</span><span class="op">()</span>
+
+<span class="kw">if</span> <span class="op">(</span>process.env.NODE_ENV <span class="op">!==</span> <span class="str">"production"</span><span class="op">)</span> globalForPrisma.prisma <span class="op">=</span> prisma</pre>
                 </div>
             </section>
 
@@ -516,38 +533,42 @@
                         <tr>
                             <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">User</code>
                             </td>
-                            <td>email, hashedPassword, role, annualLeave, passwordChanged</td>
+                            <td>email, name, password, role, annualLeave, usedAnnualLeave, passwordChanged, lastLoginAt?
+                            </td>
                             <td>role: <code style="font-family:var(--font-mono);font-size:12px">ADMIN</code> / <code
-                                    style="font-family:var(--font-mono);font-size:12px">EMPLOYEE</code>. 기본 annualLeave
-                                = 15</td>
+                                    style="font-family:var(--font-mono);font-size:12px">EMPLOYEE</code>. annualLeave 기본
+                                15, usedAnnualLeave 기본 0</td>
                         </tr>
                         <tr>
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Employee</code>
                             </td>
-                            <td>name, phone?, position, userId @unique</td>
-                            <td>User와 1:1 연결. 비상연락망에서 사용</td>
+                            <td>name, email?, phone?, position?, job?, residence?, userId? @unique</td>
+                            <td>User와 1:1 연결 (optional). 비상연락망에서 사용</td>
                         </tr>
                         <tr>
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">LeaveRequest</code>
                             </td>
-                            <td>type, status, date, userId</td>
+                            <td>type, status, startDate, endDate, days, reason, visibility, userId, approverId?,
+                                approvedAt?</td>
                             <td>type: ANNUAL(1일) / HALF_DAY_AM / HALF_DAY_PM(0.5일). status: PENDING / APPROVED /
-                                REJECTED</td>
+                                REJECTED. visibility 기본 "PRIVATE"</td>
                         </tr>
                         <tr>
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Schedule</code>
                             </td>
-                            <td>inviteeIds String[], allDay, leaveRequestId?</td>
+                            <td>title, description?, startDate, endDate, allDay, inviteeIds String[], leaveRequestId?,
+                                createdById</td>
                             <td>inviteeIds는 Employee ID 배열. 연차 승인 시 leaveRequestId 연결</td>
                         </tr>
                         <tr>
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">MeetingMinute</code>
                             </td>
-                            <td>transcript, summary, keywords String[], speakerMap Json</td>
+                            <td>title, content, rawTranscript?, attendees String[], keywords String[], speakerMap Json?,
+                                meetingDate, folderId?, createdById</td>
                             <td>AI 회의록. speakerMap은 <code
                                     style="font-family:var(--font-mono);font-size:12px">Record&lt;string, string[]&gt;</code>로
                                 캐스팅</td>
@@ -556,23 +577,21 @@
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">MeetingFolder</code>
                             </td>
-                            <td>type, ownerId?, deletedAt?</td>
-                            <td>type: PERSONAL / SHARED. 소프트 딜리트 (deletedAt). PERSONAL은 ownerId 일치 검증 필수</td>
+                            <td>name, type, createdById, deletedAt?</td>
+                            <td>type: PERSONAL / SHARED. 소프트 딜리트 (deletedAt). PERSONAL은 createdById 일치 검증 필수</td>
                         </tr>
                         <tr>
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Notice</code>
                             </td>
-                            <td>title, content, authorId</td>
-                            <td>공지사항. POST 후 <code
-                                    style="font-family:var(--font-mono);font-size:12px">sendPushToAll().catch(console.error)</code>
-                                호출</td>
+                            <td>title, content, imageUrl?, createdById</td>
+                            <td>공지사항. 작성 후 웹 푸시 발송</td>
                         </tr>
                         <tr>
                             <td><code
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Notification</code>
                             </td>
-                            <td>message, isRead, userId</td>
+                            <td>type, title, message, referenceId?, isRead, userId</td>
                             <td>앱 내 알림. 일정 초대, 연차 승인/반려 시 생성</td>
                         </tr>
                         <tr>
@@ -580,7 +599,7 @@
                                     style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">PushSubscription</code>
                             </td>
                             <td>endpoint, p256dh, auth, userId</td>
-                            <td>웹 푸시 구독 정보. 410/404 응답 시 자동 삭제</td>
+                            <td>웹 푸시 구독 정보. 410 응답 시 자동 삭제</td>
                         </tr>
                     </tbody>
                 </table>
@@ -600,6 +619,7 @@
                     <div><span class="comment">캘린더 / 연차</span></div>
                     <div><span class="file">/calendar</span></div>
                     <div><span class="file">/calendar/new</span></div>
+                    <div><span class="file">/calendar/new/result</span></div>
                     <div><span class="file">/calendar/[id]</span></div>
                     <br>
                     <div><span class="comment">일정 관리</span></div>
@@ -798,7 +818,139 @@
                 </div>
             </section>
 
-            <!-- 9. DEV COMMANDS -->
+            <!-- 9. ENV VARS -->
+            <section id="env-vars">
+                <h3><span class="section-icon">⚙️</span> 환경변수</h3>
+                <p>프로젝트 루트의 <code style="font-family:var(--font-mono)">.env.local</code> 파일과 Vercel 환경변수에 아래 값을 설정하세요.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-env">ENV</span>.env.local — 전체 환경변수</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># Auth.js (NextAuth v5)</span>
+AUTH_SECRET=<span class="str">your-32-char-random-secret</span>
+AUTH_URL=<span class="str">http://localhost:3000</span>
+AUTH_TRUST_HOST=<span class="str">true</span>
+
+<span class="cmt"># Database (Prisma 7 + PostgreSQL)</span>
+DATABASE_URL=<span class="str">postgresql://user:pass@localhost:5432/togate</span>
+
+<span class="cmt"># AI (gemini | openai)</span>
+AI_PROVIDER=<span class="str">gemini</span>
+GEMINI_API_KEY=<span class="str">your-gemini-api-key</span>
+OPENAI_API_KEY=<span class="str">your-openai-api-key</span>
+
+<span class="cmt"># 음성 전사 (Deepgram)</span>
+DEEPGRAM_API_KEY=<span class="str">your-deepgram-api-key</span>
+DEEPGRAM_PROJECT_ID=<span class="str">your-deepgram-project-id</span>
+
+<span class="cmt"># 웹 푸시 VAPID</span>
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=<span class="str">your-vapid-public-key</span>
+VAPID_PRIVATE_KEY=<span class="str">your-vapid-private-key</span>
+VAPID_MAILTO=<span class="str">mailto:admin@togate.com</span>
+
+<span class="cmt"># Vercel</span>
+VERCEL_OIDC_TOKEN=<span class="str"># Vercel이 자동 주입 — 직접 설정 불필요</span>
+
+<span class="cmt"># Cron</span>
+CRON_SECRET=<span class="str">your-cron-secret</span></pre>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>변수</th>
+                            <th>필수</th>
+                            <th>설명</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">AUTH_SECRET</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>JWT 서명·암호화 키. 32자 이상 랜덤 문자열. <code style="font-family:var(--font-mono);font-size:12px">openssl rand -base64 33</code>으로 생성</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">AUTH_URL</code></td>
+                            <td><span style="font-size:12px;color:var(--text-dim)">로컬만</span></td>
+                            <td>Auth.js가 콜백 URL을 구성할 때 사용하는 기준 URL. Vercel 배포 시 자동 주입됨 — 직접 설정 시 Preview URL 충돌 주의</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">AUTH_TRUST_HOST</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>Vercel·역방향 프록시 환경에서 <code style="font-family:var(--font-mono);font-size:12px">true</code>로 설정. Host 헤더를 신뢰해 리다이렉트 URL을 올바르게 구성함</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">DATABASE_URL</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>PostgreSQL 연결 문자열. Prisma 7 + <code style="font-family:var(--font-mono);font-size:12px">@prisma/adapter-pg</code>가 사용. <code style="font-family:var(--font-mono);font-size:12px">prisma.config.ts</code>가 읽음</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">AI_PROVIDER</code></td>
+                            <td><span style="font-size:12px;color:var(--text-dim)">선택</span></td>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">gemini</code>(기본) 또는 <code style="font-family:var(--font-mono);font-size:12px">openai</code>. <code style="font-family:var(--font-mono);font-size:12px">src/lib/ai/provider.ts</code>의 <code style="font-family:var(--font-mono);font-size:12px">AIProvider()</code>가 이 값을 읽어 클라이언트를 반환</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">GEMINI_API_KEY</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>Google AI Studio에서 발급. <code style="font-family:var(--font-mono);font-size:12px">AI_PROVIDER=gemini</code>(기본)일 때 회의록 전사·요약에 사용</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">OPENAI_API_KEY</code></td>
+                            <td><span style="font-size:12px;color:var(--text-dim)">선택</span></td>
+                            <td>OpenAI API 키. <code style="font-family:var(--font-mono);font-size:12px">AI_PROVIDER=openai</code>로 전환 시 필요. GPT-4o-mini 모델 사용</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">VERCEL_OIDC_TOKEN</code></td>
+                            <td><span style="font-size:12px;color:var(--text-dim)">자동</span></td>
+                            <td>Vercel이 배포 시 자동으로 주입하는 OIDC 토큰. 직접 설정 불필요. 외부 서비스 인증(예: GCP Workload Identity)에 활용 가능</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">DEEPGRAM_API_KEY</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>Deepgram 음성 전사 API 키. 회의록 녹음 파일을 텍스트로 변환하는 데 사용</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">DEEPGRAM_PROJECT_ID</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>Deepgram 프로젝트 ID. API 키와 함께 사용해 프로젝트별 사용량·설정을 관리</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">NEXT_PUBLIC_VAPID_PUBLIC_KEY</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>VAPID 공개 키. <code style="font-family:var(--font-mono);font-size:12px">NEXT_PUBLIC_</code> 접두사로 브라우저에 노출됨. Service Worker가 구독 등록 시 사용</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">VAPID_PRIVATE_KEY</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>VAPID 비공개 키. 서버에서만 사용. <code style="font-family:var(--font-mono);font-size:12px">src/lib/push.ts</code>의 푸시 발송 시 서명에 사용</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">VAPID_MAILTO</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>VAPID 연락처. <code style="font-family:var(--font-mono);font-size:12px">mailto:</code> 형식으로 작성. 푸시 서비스가 문제 발생 시 연락하는 이메일</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">CRON_SECRET</code></td>
+                            <td><span class="chip ts" style="font-size:11px">필수</span></td>
+                            <td>Vercel Cron이 API Route 호출 시 자동으로 <code style="font-family:var(--font-mono);font-size:12px">Authorization: Bearer {CRON_SECRET}</code> 헤더를 추가. Cron Route Handler에서 검증</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>VAPID 키 생성:</strong> <code style="font-family:var(--font-mono)">npx web-push generate-vapid-keys</code>를 실행하면 공개 키와 비공개 키가 한 번에 출력됩니다.</p>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>Vercel 배포 팁:</strong> <code style="font-family:var(--font-mono)">AUTH_URL</code>은 Vercel Preview 환경에서 URL 충돌을 일으킬 수 있으므로 설정하지 않는 것이 권장됩니다. <code style="font-family:var(--font-mono)">AUTH_TRUST_HOST=true</code>만으로 충분합니다.</p>
+                </div>
+            </section>
+
+            <!-- 10. DEV COMMANDS -->
             <section id="dev-commands">
                 <h3><span class="section-icon">💻</span> 개발 명령어</h3>
 
@@ -858,14 +1010,7 @@ npm run build        <span class="cmt"># prisma generate && next build --webpack
 
                 <div class="info-box note">
                     <span class="icon">💡</span>
-                    <p><strong>환경변수:</strong> <code style="font-family:var(--font-mono)">.env.local</code>에 <code
-                            style="font-family:var(--font-mono)">DATABASE_URL</code>, <code
-                            style="font-family:var(--font-mono)">AUTH_SECRET</code>, <code
-                            style="font-family:var(--font-mono)">GEMINI_API_KEY</code>, <code
-                            style="font-family:var(--font-mono)">VAPID_PUBLIC_KEY</code>, <code
-                            style="font-family:var(--font-mono)">VAPID_PRIVATE_KEY</code>, <code
-                            style="font-family:var(--font-mono)">CRON_SECRET</code>를 설정하세요. 로그인 페이지 문서에서 전체 환경변수 목록을 확인할
-                        수 있습니다.</p>
+                    <p><strong>환경변수:</strong> 전체 환경변수 목록과 설명은 <a href="#env-vars" style="color:var(--blue)">환경변수 섹션</a>을 참고하세요.</p>
                 </div>
             </section>
 
