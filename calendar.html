@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 캘린더 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<aside id="sidebar">
+    <div class="sidebar-logo">
+        <div class="badge">DEV MANUAL</div>
+        <h1>Togate Docs</h1>
+        <p>개발자 가이드 v1.0</p>
+    </div>
+    <nav>
+        <div class="nav-section">개요</div>
+        <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+        <div class="nav-section">인증</div>
+        <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+        <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+        <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+        <div class="nav-section">콘텐츠</div>
+        <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+        <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+        <div class="nav-section">일정</div>
+        <a href="calendar.html" class="page-active"><span class="icon">📅</span> 캘린더</a>
+        <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+        <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+        <div class="nav-section">AI</div>
+        <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+        <div class="nav-section">알림</div>
+        <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+        <div class="nav-section">캘린더 섹션</div>
+        <a href="#overview" class="active"><span class="icon">📋</span> 개요</a>
+        <a href="#structure"><span class="icon">📁</span> 파일 구조</a>
+        <a href="#leave-request"><span class="icon">🏖️</span> 연차 신청</a>
+        <a href="#api"><span class="icon">🌐</span> API 라우트</a>
+        <a href="#db-model"><span class="icon">🗄️</span> DB 모델</a>
+        <a href="#cron"><span class="icon">⏰</span> Cron 초기화</a>
+    </nav>
+    <div class="sidebar-footer">Next.js 16 · TypeScript · App Router</div>
+</aside>
+
+<div id="main">
+    <div class="topbar">
+        <div class="topbar-breadcrumb">
+            Docs <span style="color:var(--text-dim)">›</span> 일정 <span style="color:var(--text-dim)">›</span>
+            <span>캘린더</span>
+        </div>
+        <div class="topbar-right">
+            <span class="chip next">⬡ Next.js 16</span>
+            <span class="chip ts">TS TypeScript</span>
+        </div>
+    </div>
+    <div class="content">
+        <div class="page-header">
+            <h2>캘린더</h2>
+            <p>월별 캘린더 뷰에서 팀 일정과 연차를 함께 확인합니다. 직원은 이 페이지에서 연차를 신청할 수 있습니다.</p>
+            <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+        </div>
+
+        <section id="overview">
+            <h3><span class="section-icon">📋</span> 개요</h3>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/calendar</code> — 이번 달 캘린더 (Schedule + LeaveRequest 표시)</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/calendar/new</code> — 연차 신청 폼</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/calendar/[id]</code> — 연차 신청 상세</li>
+            </ul>
+            <div class="info-box note">
+                <span class="icon">💡</span>
+                <p>캘린더는 <strong>Schedule</strong>(팀 일정)과 <strong>LeaveRequest</strong>(연차)를 함께 표시합니다. 연차 승인 시 <code style="font-family:var(--font-mono)">leaveRequestId</code>가 연결된 Schedule이 자동 생성됩니다.</p>
+            </div>
+        </section>
+
+        <section id="structure">
+            <h3><span class="section-icon">📁</span> 파일 구조</h3>
+            <div class="file-tree">
+                <div><span class="dir">src/app/calendar/</span></div>
+                <div class="indent"><span class="file focus">page.tsx</span> <span class="comment">← 월별 캘린더 뷰</span></div>
+                <div class="indent"><span class="dir">new/</span></div>
+                <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 연차 신청 폼</span></div>
+                <div class="indent"><span class="dir">[id]/</span></div>
+                <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 연차 신청 상세 + 취소</span></div>
+                <br>
+                <div><span class="dir">src/app/api/</span></div>
+                <div class="indent"><span class="file">calendar/route.ts</span> <span class="comment">← GET: 월별 일정+연차 통합 조회</span></div>
+                <div class="indent"><span class="file focus">leave-requests/route.ts</span> <span class="comment">← GET(목록) · POST(신청)</span></div>
+                <div class="indent"><span class="file focus">leave-requests/[id]/route.ts</span> <span class="comment">← GET · PATCH(취소) · DELETE</span></div>
+            </div>
+        </section>
+
+        <section id="leave-request">
+            <h3><span class="section-icon">🏖️</span> 연차 신청</h3>
+
+            <h4>연차 유형</h4>
+            <table>
+                <thead><tr><th>타입</th><th>설명</th><th>차감</th></tr></thead>
+                <tbody>
+                    <tr><td><code>ANNUAL</code></td><td>연차 (종일)</td><td>1일</td></tr>
+                    <tr><td><code>HALF_DAY_AM</code></td><td>오전 반차</td><td>0.5일</td></tr>
+                    <tr><td><code>HALF_DAY_PM</code></td><td>오후 반차</td><td>0.5일</td></tr>
+                </tbody>
+            </table>
+
+            <h4>연차 신청 흐름</h4>
+            <div class="flow">
+                <div class="flow-step"><div class="step-label">직원</div><div class="step-name">/calendar/new</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight"><div class="step-label">API</div><div class="step-name">POST /api/leave-requests</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="step-label">DB</div><div class="step-name">LeaveRequest(PENDING)</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight"><div class="step-label">ADMIN</div><div class="step-name">/admin/leave/approve</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="step-label">DB</div><div class="step-name">APPROVED + Schedule 생성</div></div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/leave-requests/route.ts — POST</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre><span class="kw">export async function</span> <span class="fn">POST</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">const</span> <span class="op">{</span> type<span class="op">,</span> date<span class="op">,</span> reason <span class="op">} =</span> <span class="kw">await</span> req.<span class="fn">json</span><span class="op">()</span>
+
+  <span class="cmt">// 잔여 연차 확인</span>
+  <span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> db.user.<span class="fn">findUnique</span><span class="op">({</span> where<span class="op">: {</span> id<span class="op">:</span> session<span class="op">!.</span>user.id <span class="op">} })</span>
+  <span class="kw">const</span> cost <span class="op">=</span> type <span class="op">===</span> <span class="str">"ANNUAL"</span> <span class="op">?</span> <span class="num">1</span> <span class="op">:</span> <span class="num">0.5</span>
+  <span class="kw">if</span> <span class="op">((</span>user<span class="op">!.</span>annualLeave <span class="op">??</span> <span class="num">0</span><span class="op">) &lt;</span> cost<span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"잔여 연차가 부족합니다."</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">400</span> <span class="op">})</span>
+
+  <span class="kw">const</span> leave <span class="op">=</span> <span class="kw">await</span> db.leaveRequest.<span class="fn">create</span><span class="op">({</span>
+    data<span class="op">: {</span>
+      type<span class="op">,</span> date<span class="op">:</span> <span class="kw">new</span> <span class="fn">Date</span><span class="op">(</span>date<span class="op">),</span> reason<span class="op">,</span>
+      userId<span class="op">:</span>  session<span class="op">!.</span>user.id<span class="op">,</span>
+      status<span class="op">:</span>  <span class="str">"PENDING"</span><span class="op">,</span>
+    <span class="op">},</span>
+  <span class="op">})</span>
+
+  <span class="cmt">// ADMIN에게 앱 알림</span>
+  <span class="kw">const</span> admins <span class="op">=</span> <span class="kw">await</span> db.user.<span class="fn">findMany</span><span class="op">({</span> where<span class="op">: {</span> role<span class="op">:</span> <span class="str">"ADMIN"</span> <span class="op">} })</span>
+  <span class="kw">await</span> db.notification.<span class="fn">createMany</span><span class="op">({</span>
+    data<span class="op">:</span> admins.<span class="fn">map</span><span class="op">(</span>a <span class="op">=&gt; ({</span>
+      userId<span class="op">:</span>  a.id<span class="op">,</span>
+      message<span class="op">: `</span><span class="str">연차 신청이 접수되었습니다.</span><span class="op">`</span><span class="op">,</span>
+      url<span class="op">:</span>     <span class="str">`/admin/leave/</span><span class="op">${</span>leave.id<span class="op">}</span><span class="str">`</span><span class="op">,</span>
+    <span class="op">})),</span>
+  <span class="op">})</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">(</span>leave<span class="op">,</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">201</span> <span class="op">})</span>
+<span class="op">}</span></pre>
+            </div>
+        </section>
+
+        <section id="api">
+            <h3><span class="section-icon">🌐</span> API 라우트</h3>
+            <table>
+                <thead><tr><th>Method</th><th>경로</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td>/api/calendar?year=&amp;month=</td><td>해당 월의 Schedule + LeaveRequest 통합 반환</td></tr>
+                    <tr><td>GET</td><td>/api/leave-requests</td><td>본인 연차 신청 목록</td></tr>
+                    <tr><td>POST</td><td>/api/leave-requests</td><td>연차 신청 (잔여 연차 선검증)</td></tr>
+                    <tr><td>PATCH</td><td>/api/leave-requests/[id]</td><td>PENDING 상태 취소 (본인만)</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="db-model">
+            <h3><span class="section-icon">🗄️</span> DB 모델</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>prisma/schema.prisma — LeaveRequest</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre>model <span class="ty">LeaveRequest</span> <span class="op">{</span>
+  id         <span class="ty">String</span>      <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  userId     <span class="ty">String</span>
+  type       <span class="ty">LeaveType</span>               <span class="cmt">// ANNUAL | HALF_DAY_AM | HALF_DAY_PM</span>
+  date       <span class="ty">DateTime</span>
+  reason     <span class="ty">String</span><span class="op">?</span>
+  status     <span class="ty">LeaveStatus</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span>PENDING<span class="op">)</span> <span class="cmt">// PENDING | APPROVED | REJECTED</span>
+  user       <span class="ty">User</span>        <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>userId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">])</span>
+  schedules  <span class="ty">Schedule[]</span>              <span class="cmt">// 승인 시 Schedule 자동 생성</span>
+<span class="op">}</span>
+
+<span class="kw">enum</span> <span class="ty">LeaveType</span>   <span class="op">{</span> ANNUAL  HALF_DAY_AM  HALF_DAY_PM <span class="op">}</span>
+<span class="kw">enum</span> <span class="ty">LeaveStatus</span> <span class="op">{</span> PENDING  APPROVED  REJECTED <span class="op">}</span></pre>
+            </div>
+        </section>
+
+        <section id="cron">
+            <h3><span class="section-icon">⏰</span> Cron — 연차 초기화</h3>
+            <p>매년 12월 31일 15:00 UTC(한국 1월 1일 0시)에 전 직원의 <code style="font-family:var(--font-mono)">annualLeave</code>를 15일로 초기화합니다.</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/cron/reset-annual-leave/route.ts</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre><span class="kw">export async function</span> <span class="fn">GET</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">) {</span>
+  <span class="kw">const</span> auth <span class="op">=</span> req.headers.<span class="fn">get</span><span class="op">(</span><span class="str">"Authorization"</span><span class="op">)</span>
+  <span class="kw">if</span> <span class="op">(</span>auth <span class="op">!== `Bearer </span><span class="op">${</span>process.env.<span class="fn">CRON_SECRET</span><span class="op">}</span><span class="op">`)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Unauthorized"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">401</span> <span class="op">})</span>
+
+  <span class="kw">await</span> db.user.<span class="fn">updateMany</span><span class="op">({</span>
+    where<span class="op">: {</span> role<span class="op">:</span> <span class="str">"EMPLOYEE"</span> <span class="op">},</span>
+    data<span class="op">:  {</span> annualLeave<span class="op">:</span> <span class="num">15</span> <span class="op">},</span>
+  <span class="op">})</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> ok<span class="op">:</span> <span class="kw">true</span> <span class="op">})</span>
+<span class="op">}</span></pre>
+            </div>
+        </section>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

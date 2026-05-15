@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 사용자 등록 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="badge">DEV MANUAL</div>
+            <h1>Togate Docs</h1>
+            <p>개발자 가이드 v1.0</p>
+        </div>
+        <nav>
+            <div class="nav-section">개요</div>
+            <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">인증</div>
+            <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+            <a href="signup.html" class="page-active"><span class="icon">👤</span> 사용자 등록</a>
+            <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+            <div class="nav-section">콘텐츠</div>
+            <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+            <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+            <div class="nav-section">일정</div>
+            <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+            <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+            <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+            <div class="nav-section">AI</div>
+            <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+            <div class="nav-section">알림</div>
+            <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+            <div class="nav-section">사용자 등록 섹션</div>
+            <a href="#overview" class="active"><span class="icon">📋</span> 개요</a>
+            <a href="#structure"><span class="icon">📁</span> 파일 구조</a>
+            <a href="#components"><span class="icon">🧩</span> 컴포넌트</a>
+            <a href="#flow"><span class="icon">🔄</span> 등록 흐름</a>
+            <a href="#api"><span class="icon">🌐</span> API 라우트</a>
+            <a href="#validation"><span class="icon">✅</span> 유효성 검사</a>
+            <a href="#first-login"><span class="icon">🔐</span> 최초 로그인</a>
+            <a href="#db-model"><span class="icon">🗄️</span> DB 모델</a>
+            <a href="#security"><span class="icon">🔒</span> 보안</a>
+            <a href="#checklist"><span class="icon">☑️</span> 배포 체크리스트</a>
+        </nav>
+        <div class="sidebar-footer">
+            Next.js 16 · TypeScript · App Router
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div id="main">
+        <div class="topbar">
+            <div class="topbar-breadcrumb">
+                Docs <span style="color:var(--text-dim)">›</span> 사용자 관리 <span style="color:var(--text-dim)">›</span>
+                <span>사용자 등록</span>
+            </div>
+            <div class="topbar-right">
+                <span class="chip next">⬡ Next.js 16</span>
+                <span class="chip ts">TS TypeScript</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-header">
+                <h2>사용자 등록</h2>
+                <p>Togate는 사내앱으로, 관리자(ADMIN)가 직원 계정을 생성합니다. 공개 자가 회원가입은 없습니다.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+            </div>
+
+            <!-- 1. OVERVIEW -->
+            <section id="overview">
+                <h3><span class="section-icon">📋</span> 개요</h3>
+                <p>사용자 등록은 <code style="color:var(--blue);font-family:var(--font-mono)">/users/new</code>와
+                    <code style="color:var(--blue);font-family:var(--font-mono)">/users/new/profile</code>에서 이뤄집니다.
+                    ADMIN 권한을 가진 계정만 접근할 수 있으며, 등록된 직원은 초기 비밀번호로 첫 로그인 후 반드시 비밀번호를 변경해야 합니다.</p>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>설계 원칙:</strong> 공개 가입 없음. 관리자가 User + Employee를 생성하고, 직원은 첫 로그인 시 <code
+                            style="font-family:var(--font-mono)">/settings/password</code>로 강제 이동되어 비밀번호를 교체합니다.
+                        <code style="font-family:var(--font-mono)">src/proxy.ts</code>가 이 흐름을 제어합니다.</p>
+                </div>
+
+                <h4>주요 기능</h4>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> ADMIN만 /users/new 접근 가능 (proxy.ts 권한 체크)</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> User (이메일·비밀번호·role) + Employee (이름·전화·직책) 동시 생성</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> User.passwordChanged = false로 초기 설정</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 직원 첫 로그인 시 /settings/password 강제 이동</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 연차 잔여일수(annualLeave) 초기값 설정</li>
+                </ul>
+            </section>
+
+            <!-- 2. FILE STRUCTURE -->
+            <section id="structure">
+                <h3><span class="section-icon">📁</span> 파일 구조</h3>
+
+                <div class="file-tree">
+                    <div><span class="dir">src/app/</span></div>
+                    <div class="indent"><span class="dir">users/</span></div>
+                    <div class="indent indent"><span class="file">page.tsx</span> <span class="comment">← 사용자 목록 (ADMIN)</span></div>
+                    <div class="indent indent"><span class="dir">new/</span></div>
+                    <div class="indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 계정 정보 입력 (이메일·비밀번호·role)</span></div>
+                    <div class="indent indent indent"><span class="dir">profile/</span></div>
+                    <div class="indent indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 직원 프로필 입력 (이름·전화·직책)</span></div>
+                    <div class="indent"><span class="dir">settings/</span></div>
+                    <div class="indent indent"><span class="dir">password/</span></div>
+                    <div class="indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 초기 비밀번호 변경 페이지</span></div>
+                    <br>
+                    <div><span class="dir">src/app/api/</span></div>
+                    <div class="indent"><span class="file focus">users/route.ts</span> <span class="comment">← POST: 사용자 + 직원 생성</span></div>
+                    <div class="indent"><span class="file focus">users/[id]/route.ts</span> <span class="comment">← GET · PATCH · DELETE</span></div>
+                    <br>
+                    <div><span class="dir">src/components/</span></div>
+                    <div class="indent"><span class="file focus">common/</span> <span class="comment">← Button · Input · BoxInput · Dialog 등 공용 컴포넌트</span></div>
+                    <br>
+                    <div><span class="dir">src/proxy.ts</span> <span class="comment">← ADMIN 권한 체크 + passwordChanged 강제 변경</span></div>
+                    <div><span class="dir">prisma/schema.prisma</span> <span class="comment">← User · Employee 모델 정의</span></div>
+                </div>
+            </section>
+
+            <!-- 3. COMPONENTS -->
+            <section id="components">
+                <h3><span class="section-icon">🧩</span> 컴포넌트</h3>
+
+                <h4>/users/new/page.tsx — 계정 생성 1단계</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-tsx">TSX</span>app/users/new/page.tsx</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="str">"use client"</span>
+
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">useState</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"react"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">useRouter</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/navigation"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">Button</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/components/common/Button"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">Input</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/components/common/Input"</span>
+
+<span class="kw">export default function</span> <span class="fn">NewUserPage</span><span class="op">() {</span>
+  <span class="kw">const</span> router <span class="op">=</span> <span class="fn">useRouter</span><span class="op">()</span>
+  <span class="kw">const</span> <span class="op">[</span>isLoading<span class="op">,</span> setIsLoading<span class="op">] =</span> <span class="fn">useState</span><span class="op">(</span><span class="kw">false</span><span class="op">)</span>
+
+  <span class="kw">async function</span> <span class="fn">handleSubmit</span><span class="op">(</span>e<span class="op">:</span> <span class="ty">React.FormEvent&lt;HTMLFormElement&gt;</span><span class="op">) {</span>
+    e.<span class="fn">preventDefault</span><span class="op">()</span>
+    <span class="fn">setIsLoading</span><span class="op">(</span><span class="kw">true</span><span class="op">)</span>
+
+    <span class="kw">const</span> formData <span class="op">=</span> <span class="kw">new</span> <span class="fn">FormData</span><span class="op">(</span>e.<span class="fn">currentTarget</span><span class="op">)</span>
+    <span class="kw">const</span> res <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span><span class="op">(</span><span class="str">"/api/users"</span><span class="op">, {</span>
+      method<span class="op">:</span> <span class="str">"POST"</span><span class="op">,</span>
+      headers<span class="op">: {</span> <span class="str">"Content-Type"</span><span class="op">:</span> <span class="str">"application/json"</span> <span class="op">},</span>
+      body<span class="op">:</span> <span class="fn">JSON.stringify</span><span class="op">({</span>
+        email<span class="op">:</span>    formData.<span class="fn">get</span><span class="op">(</span><span class="str">"email"</span><span class="op">),</span>
+        password<span class="op">:</span> formData.<span class="fn">get</span><span class="op">(</span><span class="str">"password"</span><span class="op">),</span>
+        role<span class="op">:</span>     formData.<span class="fn">get</span><span class="op">(</span><span class="str">"role"</span><span class="op">),</span>
+      <span class="op">}),</span>
+    <span class="op">})</span>
+
+    <span class="kw">if</span> <span class="op">(</span>res.ok<span class="op">) {</span>
+      <span class="kw">const</span> <span class="op">{</span> id <span class="op">} =</span> <span class="kw">await</span> res.<span class="fn">json</span><span class="op">()</span>
+      router.<span class="fn">push</span><span class="op">(</span><span class="str">`/users/new/profile?userId=</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span><span class="op">)</span>
+    <span class="op">}</span>
+  <span class="op">}</span>
+
+  <span class="kw">return</span> <span class="op">(</span>
+    <span class="tag">&lt;form</span> <span class="atr">onSubmit</span><span class="op">={</span>handleSubmit<span class="op">}</span><span class="tag">&gt;</span>
+      <span class="cmt">{/* email · password · role 입력 */}</span>
+    <span class="tag">&lt;/form&gt;</span>
+  <span class="op">)</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <h4>공용 컴포넌트 주의사항</h4>
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>confirm() 금지:</strong> 삭제·확인 다이얼로그는 반드시 <code
+                            style="font-family:var(--font-mono)">src/components/common/Dialog.tsx</code>를 사용하세요. 브라우저
+                        기본 <code style="font-family:var(--font-mono)">confirm()</code>은 사용 금지입니다.</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-tsx">TSX</span>Dialog 컴포넌트 사용 예시</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">Dialog</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/components/common/Dialog"</span>
+
+<span class="kw">const</span> <span class="op">[</span>open<span class="op">,</span> setOpen<span class="op">] =</span> <span class="fn">useState</span><span class="op">(</span><span class="kw">false</span><span class="op">)</span>
+
+<span class="tag">&lt;Dialog</span>
+  <span class="atr">message</span><span class="op">=</span><span class="str">"사용자를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다."</span>
+  <span class="atr">buttons</span><span class="op">={[</span>
+    <span class="op">{</span> label<span class="op">:</span> <span class="str">"취소"</span><span class="op">,</span> onClick<span class="op">:</span> <span class="op">() =&gt;</span> <span class="fn">setOpen</span><span class="op">(</span><span class="kw">false</span><span class="op">) },</span>
+    <span class="op">{</span> label<span class="op">:</span> <span class="str">"삭제"</span><span class="op">,</span> variant<span class="op">:</span> <span class="str">"primary"</span><span class="op">,</span> onClick<span class="op">:</span> handleDelete <span class="op">},</span>
+  <span class="op">]}</span>
+<span class="tag">/&gt;</span></pre>
+                </div>
+            </section>
+
+            <!-- 4. FLOW -->
+            <section id="flow">
+                <h3><span class="section-icon">🔄</span> 등록 흐름</h3>
+
+                <h4>관리자 사용자 등록 전체 흐름</h4>
+                <div class="flow">
+                    <div class="flow-step"><div class="step-label">ADMIN</div><div class="step-name">/users/new</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">API</div><div class="step-name">POST /api/users</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">DB</div><div class="step-name">User 생성</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">ADMIN</div><div class="step-name">/users/new/profile</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">DB</div><div class="step-name">Employee 생성</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">완료</div><div class="step-name">/users 목록</div></div>
+                </div>
+
+                <h4>직원 최초 로그인 흐름</h4>
+                <div class="flow">
+                    <div class="flow-step"><div class="step-label">직원</div><div class="step-name">로그인</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">proxy.ts</div><div class="step-name">passwordChanged=false</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">강제</div><div class="step-name">/settings/password</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">완료</div><div class="step-name">홈(/) 이동</div></div>
+                </div>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>권한 제어:</strong> <code style="font-family:var(--font-mono)">src/proxy.ts</code>에서 ADMIN 역할 여부를 확인합니다. EMPLOYEE 권한으로 <code style="font-family:var(--font-mono)">/users/new</code>에 접근하면 403 또는 홈으로 리다이렉트됩니다.</p>
+                </div>
+            </section>
+
+            <!-- 5. API ROUTE -->
+            <section id="api">
+                <h3><span class="section-icon">🌐</span> API 라우트</h3>
+
+                <table>
+                    <thead>
+                        <tr><th>Method</th><th>경로</th><th>설명</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>POST</td><td>/api/users</td><td>신규 User + Employee 생성 (ADMIN 전용)</td></tr>
+                        <tr><td>GET</td><td>/api/users</td><td>전체 사용자 목록 조회</td></tr>
+                        <tr><td>GET</td><td>/api/users/[id]</td><td>단일 사용자 조회</td></tr>
+                        <tr><td>PATCH</td><td>/api/users/[id]</td><td>사용자 정보 수정</td></tr>
+                        <tr><td>DELETE</td><td>/api/users/[id]</td><td>사용자 삭제 (ADMIN 전용)</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>POST /api/users</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/users/route.ts</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">auth</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
+<span class="kw">import</span> <span class="op">{</span> db <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/db"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">hashPassword</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/crypto"</span>
+
+<span class="kw">export async function</span> <span class="fn">POST</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">if</span> <span class="op">(</span>session<span class="op">?.user.role !== </span><span class="str">"ADMIN"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Forbidden"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">403</span> <span class="op">})</span>
+
+  <span class="kw">const</span> <span class="op">{</span> email<span class="op">,</span> password<span class="op">,</span> role <span class="op">} =</span> <span class="kw">await</span> req.<span class="fn">json</span><span class="op">()</span>
+
+  <span class="kw">const</span> hashedPassword <span class="op">=</span> <span class="kw">await</span> <span class="fn">hashPassword</span><span class="op">(</span>password<span class="op">)</span>
+  <span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> db.user.<span class="fn">create</span><span class="op">({</span>
+    data<span class="op">: {</span>
+      email<span class="op">,</span>
+      hashedPassword<span class="op">,</span>
+      role<span class="op">,</span>
+      passwordChanged<span class="op">:</span> <span class="kw">false</span><span class="op">,</span>  <span class="cmt">// 첫 로그인 시 강제 변경 트리거</span>
+      annualLeave<span class="op">:</span> <span class="num">15</span><span class="op">,</span>
+    <span class="op">},</span>
+  <span class="op">})</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> id<span class="op">:</span> user.id <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">201</span> <span class="op">})</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <h4>Request / Response 형식</h4>
+                <table>
+                    <thead>
+                        <tr><th>방향</th><th>필드</th><th>타입</th><th>비고</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Request</td><td>email</td><td><span class="type">string</span></td><td>이메일 형식, 중복 불가</td></tr>
+                        <tr><td>Request</td><td>password</td><td><span class="type">string</span></td><td>초기 임시 비밀번호</td></tr>
+                        <tr><td>Request</td><td>role</td><td><span class="type">"ADMIN" | "EMPLOYEE"</span></td><td>기본값 EMPLOYEE</td></tr>
+                        <tr><td>Response 201</td><td>id</td><td><span class="type">string</span></td><td>생성된 User ID (프로필 단계에서 사용)</td></tr>
+                        <tr><td>Response 400</td><td>error</td><td><span class="type">string</span></td><td>유효성 검사 실패</td></tr>
+                        <tr><td>Response 403</td><td>error</td><td><span class="type">string</span></td><td>ADMIN이 아닌 경우</td></tr>
+                        <tr><td>Response 409</td><td>error</td><td><span class="type">string</span></td><td>이메일 중복</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 6. VALIDATION -->
+            <section id="validation">
+                <h3><span class="section-icon">✅</span> 유효성 검사</h3>
+                <p>User 생성과 Employee 프로필 입력 각각에 대해 Zod 스키마로 검증합니다.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>lib/validations/user.ts</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">import</span> <span class="op">{</span> z <span class="op">}</span> <span class="kw">from</span> <span class="str">"zod"</span>
+
+<span class="kw">export const</span> createUserSchema <span class="op">=</span> z.<span class="fn">object</span><span class="op">({</span>
+  email<span class="op">:</span>    z.<span class="fn">string</span><span class="op">().</span><span class="fn">email</span><span class="op">(</span><span class="str">"올바른 이메일 형식이 아닙니다."</span><span class="op">),</span>
+  password<span class="op">:</span> z.<span class="fn">string</span><span class="op">().</span><span class="fn">min</span><span class="op">(</span><span class="num">8</span><span class="op">,</span> <span class="str">"비밀번호는 8자 이상이어야 합니다."</span><span class="op">),</span>
+  role<span class="op">:</span>     z.<span class="fn">enum</span><span class="op">([</span><span class="str">"ADMIN"</span><span class="op">,</span> <span class="str">"EMPLOYEE"</span><span class="op">]),</span>
+<span class="op">})</span>
+
+<span class="kw">export const</span> createEmployeeSchema <span class="op">=</span> z.<span class="fn">object</span><span class="op">({</span>
+  name<span class="op">:</span>     z.<span class="fn">string</span><span class="op">().</span><span class="fn">min</span><span class="op">(</span><span class="num">2</span><span class="op">,</span> <span class="str">"이름은 2자 이상이어야 합니다."</span><span class="op">),</span>
+  phone<span class="op">:</span>    z.<span class="fn">string</span><span class="op">().</span><span class="fn">optional</span><span class="op">(),</span>
+  position<span class="op">:</span> z.<span class="fn">string</span><span class="op">().</span><span class="fn">min</span><span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="str">"직책을 입력해주세요."</span><span class="op">),</span>
+  userId<span class="op">:</span>   z.<span class="fn">string</span><span class="op">(),</span>
+<span class="op">})</span></pre>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr><th>필드</th><th>규칙</th><th>에러 메시지</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>email</td><td>필수, 이메일 형식</td><td>올바른 이메일 형식이 아닙니다</td></tr>
+                        <tr><td>password</td><td>필수, 8자 이상</td><td>비밀번호는 8자 이상이어야 합니다</td></tr>
+                        <tr><td>role</td><td>ADMIN 또는 EMPLOYEE</td><td>유효하지 않은 role</td></tr>
+                        <tr><td>name</td><td>필수, 2자 이상</td><td>이름은 2자 이상이어야 합니다</td></tr>
+                        <tr><td>position</td><td>필수</td><td>직책을 입력해주세요</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 7. FIRST LOGIN -->
+            <section id="first-login">
+                <h3><span class="section-icon">🔐</span> 최초 로그인 — 비밀번호 강제 변경</h3>
+                <p>관리자가 생성한 계정으로 직원이 처음 로그인하면 <code style="color:var(--blue);font-family:var(--font-mono)">src/proxy.ts</code>가 <code style="font-family:var(--font-mono)">passwordChanged</code> 필드를 확인해 <code style="font-family:var(--font-mono)">/settings/password</code>로 강제 이동합니다.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>src/proxy.ts — passwordChanged 체크</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="ty">NextRequest</span><span class="op">,</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">auth</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
+
+<span class="kw">export async function</span> <span class="fn">proxy</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">NextRequest</span><span class="op">) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">const</span> <span class="op">{</span> pathname <span class="op">} =</span> req.nextUrl
+
+  <span class="kw">if</span> <span class="op">(!</span>session<span class="op">?.user)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/login"</span><span class="op">,</span> req.url<span class="op">))</span>
+
+  <span class="kw">if</span> <span class="op">(!</span>session.user.passwordChanged <span class="op">&amp;&amp;</span> pathname <span class="op">!==</span> <span class="str">"/settings/password"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/settings/password"</span><span class="op">,</span> req.url<span class="op">))</span>
+
+  <span class="kw">if</span> <span class="op">(</span>pathname.<span class="fn">startsWith</span><span class="op">(</span><span class="str">"/admin"</span><span class="op">) &amp;&amp;</span> session.user.role <span class="op">!==</span> <span class="str">"ADMIN"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/"</span><span class="op">,</span> req.url<span class="op">))</span>
+<span class="op">}</span>
+
+<span class="kw">export const</span> config <span class="op">= {</span>
+  matcher<span class="op">: [</span><span class="str">"/((?!login|api/auth|_next|.*\\..*).*)"]</span><span class="op">,</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>Next.js 16 proxy 규칙:</strong> 파일 이름은 반드시 <code
+                            style="font-family:var(--font-mono)">src/proxy.ts</code>이고, export 이름은 <code
+                            style="font-family:var(--font-mono)">proxy</code>입니다. <code
+                            style="font-family:var(--font-mono)">middleware</code>로 export하면 동작하지 않습니다.</p>
+                </div>
+            </section>
+
+            <!-- 8. DB MODEL -->
+            <section id="db-model">
+                <h3><span class="section-icon">🗄️</span> DB 모델</h3>
+                <p>사용자 등록 시 <code style="font-family:var(--font-mono)">User</code>와 <code style="font-family:var(--font-mono)">Employee</code> 모델이 1:1로 함께 생성됩니다.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>prisma/schema.prisma — User · Employee</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre>model <span class="ty">User</span> <span class="op">{</span>
+  id               <span class="ty">String</span>    <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  email            <span class="ty">String</span>    <span class="op">@</span><span class="fn">unique</span>
+  hashedPassword   <span class="ty">String</span>
+  role             <span class="ty">Role</span>      <span class="op">@</span><span class="fn">default</span><span class="op">(</span>EMPLOYEE<span class="op">)</span>
+  annualLeave      <span class="ty">Int</span>       <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="num">15</span><span class="op">)</span>
+  passwordChanged  <span class="ty">Boolean</span>   <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="kw">false</span><span class="op">)</span>
+  employee         <span class="ty">Employee</span><span class="op">?</span>
+<span class="op">}</span>
+
+model <span class="ty">Employee</span> <span class="op">{</span>
+  id       <span class="ty">String</span>  <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  name     <span class="ty">String</span>
+  phone    <span class="ty">String</span><span class="op">?</span>
+  position <span class="ty">String</span>           <span class="cmt">// 직책</span>
+  userId   <span class="ty">String</span>  <span class="op">@</span><span class="fn">unique</span>
+  user     <span class="ty">User</span>    <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>userId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">])</span>
+<span class="op">}</span>
+
+<span class="kw">enum</span> <span class="ty">Role</span> <span class="op">{</span> ADMIN  EMPLOYEE <span class="op">}</span></pre>
+                </div>
+
+                <h4>Prisma 7 필수 사항</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> import 경로: <code style="font-family:var(--font-mono)">@/generated/prisma/client</code></li>
+                    <li><span class="check">✓</span> <code style="font-family:var(--font-mono)">@prisma/adapter-pg</code> 어댑터 필수 — 없으면 런타임 에러</li>
+                    <li><span class="check">✓</span> <code style="font-family:var(--font-mono)">prisma.config.ts</code>에서 DATABASE_URL 처리 (datasource에 직접 url 불필요)</li>
+                    <li><span class="check">✓</span> 스키마 변경 후 반드시 <code style="font-family:var(--font-mono)">npm run db:migrate</code> 실행</li>
+                </ul>
+            </section>
+
+            <!-- 9. SECURITY -->
+            <section id="security">
+                <h3><span class="section-icon">🔒</span> 보안</h3>
+
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>API 레벨 권한 체크 필수:</strong> <code style="font-family:var(--font-mono)">proxy.ts</code>는 페이지 라우트를 보호하지만, API Route 핸들러도 반드시 <code style="font-family:var(--font-mono)">auth()</code>로 세션을 확인하고 role을 검증해야 합니다.</p>
+                </div>
+
+                <h4>보안 체크리스트</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> POST /api/users — ADMIN role 서버 검증 필수</li>
+                    <li><span class="check">✓</span> 비밀번호 bcrypt (cost factor 12) 해싱</li>
+                    <li><span class="check">✓</span> proxy.ts — ADMIN 전용 라우트(/users/new, /admin/*) 접근 제어</li>
+                    <li><span class="check">✓</span> passwordChanged=false 계정 → /settings/password 강제 이동</li>
+                    <li><span class="check">✓</span> 이메일 중복 시 409, 구체적 계정 존재 여부는 노출 금지</li>
+                    <li><span class="check">✓</span> 초기 임시 비밀번호는 관리자가 직접 직원에게 전달 (시스템 발송 없음)</li>
+                </ul>
+            </section>
+
+            <!-- 10. CHECKLIST -->
+            <section id="checklist">
+                <h3><span class="section-icon">☑️</span> 배포 체크리스트</h3>
+
+                <div class="info-box success">
+                    <span class="icon">✅</span>
+                    <p>사용자 등록 기능을 배포하기 전 아래 항목을 모두 확인하세요.</p>
+                </div>
+
+                <h4>코드</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> POST /api/users — session.user.role === "ADMIN" 확인</li>
+                    <li><span class="check">✓</span> User 생성 시 passwordChanged: false 설정 확인</li>
+                    <li><span class="check">✓</span> proxy.ts에서 passwordChanged 체크 및 강제 이동 동작 확인</li>
+                    <li><span class="check">✓</span> Dialog 컴포넌트 사용 (confirm() 미사용)</li>
+                </ul>
+
+                <h4>인프라</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> Prisma 마이그레이션 완료 (User · Employee 모델)</li>
+                    <li><span class="check">✓</span> 초기 관리자 계정 시드 (npm run db:seed → admin@togate.com / admin1234!)</li>
+                    <li><span class="check">✓</span> DATABASE_URL Vercel 환경변수 설정</li>
+                </ul>
+
+                <h4>테스트</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> ADMIN 계정으로 /users/new 접근 → 사용자 생성 성공</li>
+                    <li><span class="check">✓</span> EMPLOYEE 계정으로 /users/new 접근 → 리다이렉트</li>
+                    <li><span class="check">✓</span> 신규 계정 로그인 → /settings/password 강제 이동 확인</li>
+                    <li><span class="check">✓</span> 비밀번호 변경 완료 → 홈(/) 이동 확인</li>
+                    <li><span class="check">✓</span> 중복 이메일 등록 시도 → 409 에러 메시지 표시</li>
+                </ul>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 비상연락망 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<aside id="sidebar">
+    <div class="sidebar-logo">
+        <div class="badge">DEV MANUAL</div>
+        <h1>Togate Docs</h1>
+        <p>개발자 가이드 v1.0</p>
+    </div>
+    <nav>
+        <div class="nav-section">개요</div>
+        <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+        <div class="nav-section">인증</div>
+        <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+        <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+        <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+        <div class="nav-section">콘텐츠</div>
+        <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+        <a href="contacts.html" class="page-active"><span class="icon">📞</span> 비상연락망</a>
+        <div class="nav-section">일정</div>
+        <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+        <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+        <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+        <div class="nav-section">AI</div>
+        <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+        <div class="nav-section">알림</div>
+        <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+        <div class="nav-section">비상연락망 섹션</div>
+        <a href="#overview" class="active"><span class="icon">📋</span> 개요</a>
+        <a href="#structure"><span class="icon">📁</span> 파일 구조</a>
+        <a href="#api"><span class="icon">🌐</span> API 라우트</a>
+        <a href="#db-model"><span class="icon">🗄️</span> DB 모델</a>
+        <a href="#security"><span class="icon">🔒</span> 보안</a>
+    </nav>
+    <div class="sidebar-footer">Next.js 16 · TypeScript · App Router</div>
+</aside>
+
+<div id="main">
+    <div class="topbar">
+        <div class="topbar-breadcrumb">
+            Docs <span style="color:var(--text-dim)">›</span> 콘텐츠 <span style="color:var(--text-dim)">›</span>
+            <span>비상연락망</span>
+        </div>
+        <div class="topbar-right">
+            <span class="chip next">⬡ Next.js 16</span>
+            <span class="chip ts">TS TypeScript</span>
+        </div>
+    </div>
+    <div class="content">
+        <div class="page-header">
+            <h2>비상연락망</h2>
+            <p>직원 연락처 디렉토리입니다. Employee 모델을 기반으로 이름·전화번호·직책을 조회하고 관리합니다.</p>
+            <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+        </div>
+
+        <section id="overview">
+            <h3><span class="section-icon">📋</span> 개요</h3>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/contacts</code> — 전체 직원 목록 (검색·필터)</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/contacts/[id]</code> — 직원 상세 정보</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/contacts/[id]/edit</code> — 직원 정보 수정 (ADMIN 전용)</li>
+            </ul>
+            <div class="info-box note">
+                <span class="icon">💡</span>
+                <p>모든 로그인 사용자가 목록·상세를 조회할 수 있습니다. 수정은 ADMIN만 가능합니다.</p>
+            </div>
+        </section>
+
+        <section id="structure">
+            <h3><span class="section-icon">📁</span> 파일 구조</h3>
+            <div class="file-tree">
+                <div><span class="dir">src/app/contacts/</span></div>
+                <div class="indent"><span class="file focus">page.tsx</span> <span class="comment">← 전체 목록 (서버 컴포넌트)</span></div>
+                <div class="indent"><span class="dir">[id]/</span></div>
+                <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 상세 보기</span></div>
+                <div class="indent indent"><span class="dir">edit/</span></div>
+                <div class="indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 정보 수정 (ADMIN)</span></div>
+                <br>
+                <div><span class="dir">src/app/api/</span></div>
+                <div class="indent"><span class="file">contacts/route.ts</span> <span class="comment">← GET: 전체 직원 목록</span></div>
+                <div class="indent"><span class="file">contacts/[id]/route.ts</span> <span class="comment">← GET · PATCH</span></div>
+            </div>
+        </section>
+
+        <section id="api">
+            <h3><span class="section-icon">🌐</span> API 라우트</h3>
+            <table>
+                <thead><tr><th>Method</th><th>경로</th><th>설명</th><th>권한</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td>/api/contacts</td><td>전체 직원 목록 (이름·직책·전화 포함)</td><td>전체</td></tr>
+                    <tr><td>GET</td><td>/api/contacts/[id]</td><td>단일 직원 상세</td><td>전체</td></tr>
+                    <tr><td>PATCH</td><td>/api/contacts/[id]</td><td>직원 정보 수정</td><td>ADMIN</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/contacts/route.ts</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
+<span class="kw">import</span> <span class="op">{</span> db <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/db"</span>
+
+<span class="kw">export async function</span> <span class="fn">GET</span><span class="op">() {</span>
+  <span class="kw">const</span> employees <span class="op">=</span> <span class="kw">await</span> db.employee.<span class="fn">findMany</span><span class="op">({</span>
+    include<span class="op">: {</span> user<span class="op">: {</span> select<span class="op">: {</span> email<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> role<span class="op">:</span> <span class="kw">true</span> <span class="op">} } },</span>
+    orderBy<span class="op">: {</span> name<span class="op">:</span> <span class="str">"asc"</span> <span class="op">},</span>
+  <span class="op">})</span>
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">(</span>employees<span class="op">)</span>
+<span class="op">}</span></pre>
+            </div>
+        </section>
+
+        <section id="db-model">
+            <h3><span class="section-icon">🗄️</span> DB 모델</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>prisma/schema.prisma — Employee</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre>model <span class="ty">Employee</span> <span class="op">{</span>
+  id       <span class="ty">String</span>  <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  name     <span class="ty">String</span>           <span class="cmt">// 이름</span>
+  phone    <span class="ty">String</span><span class="op">?</span>          <span class="cmt">// 전화번호 (선택)</span>
+  position <span class="ty">String</span>           <span class="cmt">// 직책</span>
+  userId   <span class="ty">String</span>  <span class="op">@</span><span class="fn">unique</span>
+  user     <span class="ty">User</span>    <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>userId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">])</span>
+<span class="op">}</span></pre>
+            </div>
+            <table>
+                <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td>name</td><td>String</td><td>직원 이름 (필수)</td></tr>
+                    <tr><td>phone</td><td>String?</td><td>전화번호 (선택, null 가능)</td></tr>
+                    <tr><td>position</td><td>String</td><td>직책 (필수)</td></tr>
+                    <tr><td>userId</td><td>String @unique</td><td>User와 1:1 연결</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="security">
+            <h3><span class="section-icon">🔒</span> 보안</h3>
+            <ul class="checklist">
+                <li><span class="check">✓</span> PATCH /api/contacts/[id] — ADMIN role 서버 검증</li>
+                <li><span class="check">✓</span> 전화번호는 로그인한 사용자에게만 노출 (proxy.ts 인증 게이트)</li>
+                <li><span class="check">✓</span> 타 사용자 ID로 수정 시도 — 본인 확인 또는 ADMIN 체크</li>
+            </ul>
+        </section>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

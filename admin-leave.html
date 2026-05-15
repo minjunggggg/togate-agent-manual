@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 연차 관리 (ADMIN) | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<aside id="sidebar">
+    <div class="sidebar-logo">
+        <div class="badge">DEV MANUAL</div>
+        <h1>Togate Docs</h1>
+        <p>개발자 가이드 v1.0</p>
+    </div>
+    <nav>
+        <div class="nav-section">개요</div>
+        <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+        <div class="nav-section">인증</div>
+        <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+        <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+        <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+        <div class="nav-section">콘텐츠</div>
+        <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+        <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+        <div class="nav-section">일정</div>
+        <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+        <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+        <a href="admin-leave.html" class="page-active"><span class="icon">🏖️</span> 연차 관리</a>
+        <div class="nav-section">AI</div>
+        <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+        <div class="nav-section">알림</div>
+        <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+        <div class="nav-section">연차 관리 섹션</div>
+        <a href="#overview" class="active"><span class="icon">📋</span> 개요</a>
+        <a href="#structure"><span class="icon">📁</span> 파일 구조</a>
+        <a href="#flow"><span class="icon">🔄</span> 승인 흐름</a>
+        <a href="#api"><span class="icon">🌐</span> API 라우트</a>
+        <a href="#security"><span class="icon">🔒</span> 보안</a>
+    </nav>
+    <div class="sidebar-footer">Next.js 16 · TypeScript · App Router</div>
+</aside>
+
+<div id="main">
+    <div class="topbar">
+        <div class="topbar-breadcrumb">
+            Docs <span style="color:var(--text-dim)">›</span> 일정 <span style="color:var(--text-dim)">›</span>
+            <span>연차 관리 (ADMIN)</span>
+        </div>
+        <div class="topbar-right">
+            <span class="chip next">⬡ Next.js 16</span>
+            <span class="chip ts">TS TypeScript</span>
+        </div>
+    </div>
+    <div class="content">
+        <div class="page-header">
+            <h2>연차 관리 (ADMIN)</h2>
+            <p>관리자 전용 연차 승인/반려 페이지입니다. 승인 시 직원의 잔여 연차를 차감하고 캘린더에 일정을 자동 생성합니다.</p>
+            <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+        </div>
+
+        <section id="overview">
+            <h3><span class="section-icon">📋</span> 개요</h3>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/admin/leave</code> — PENDING 연차 목록</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/admin/leave/approve</code> — 일괄 승인 화면</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/admin/leave/[id]</code> — 단건 상세 + 승인/반려</li>
+            </ul>
+            <div class="info-box danger">
+                <span class="icon">🚨</span>
+                <p><strong>ADMIN 전용:</strong> <code style="font-family:var(--font-mono)">src/proxy.ts</code>에서 <code style="font-family:var(--font-mono)">/admin/*</code> 경로에 EMPLOYEE가 접근하면 홈으로 리다이렉트합니다. API에서도 반드시 role을 재검증하세요.</p>
+            </div>
+        </section>
+
+        <section id="structure">
+            <h3><span class="section-icon">📁</span> 파일 구조</h3>
+            <div class="file-tree">
+                <div><span class="dir">src/app/admin/leave/</span></div>
+                <div class="indent"><span class="file focus">page.tsx</span> <span class="comment">← PENDING 목록</span></div>
+                <div class="indent"><span class="file focus">approve/page.tsx</span> <span class="comment">← 일괄 승인</span></div>
+                <div class="indent"><span class="dir">[id]/</span></div>
+                <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 상세 + 승인/반려 버튼</span></div>
+                <br>
+                <div><span class="dir">src/app/api/admin/</span></div>
+                <div class="indent"><span class="file">leave/route.ts</span> <span class="comment">← GET: PENDING 목록</span></div>
+                <div class="indent"><span class="file focus">leave/[id]/approve/route.ts</span> <span class="comment">← POST: 승인</span></div>
+                <div class="indent"><span class="file focus">leave/[id]/reject/route.ts</span> <span class="comment">← POST: 반려</span></div>
+            </div>
+        </section>
+
+        <section id="flow">
+            <h3><span class="section-icon">🔄</span> 승인 흐름</h3>
+            <h4>연차 승인</h4>
+            <div class="flow">
+                <div class="flow-step"><div class="step-label">ADMIN</div><div class="step-name">승인 버튼</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight"><div class="step-label">API</div><div class="step-name">POST /approve</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="step-label">DB</div><div class="step-name">status=APPROVED</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight"><div class="step-label">DB</div><div class="step-name">annualLeave 차감</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="step-label">DB</div><div class="step-name">Schedule 생성</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight"><div class="step-label">알림</div><div class="step-name">직원에게 통보</div></div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/admin/leave/[id]/approve/route.ts</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre><span class="kw">export async function</span> <span class="fn">POST</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">,</span> <span class="op">{</span> params <span class="op">}: {</span> params<span class="op">: {</span> id<span class="op">:</span> <span class="ty">string</span> <span class="op">} }) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">if</span> <span class="op">(</span>session<span class="op">?.user.role !== </span><span class="str">"ADMIN"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Forbidden"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">403</span> <span class="op">})</span>
+
+  <span class="kw">const</span> leave <span class="op">=</span> <span class="kw">await</span> db.leaveRequest.<span class="fn">findUnique</span><span class="op">({</span>
+    where<span class="op">: {</span> id<span class="op">:</span> params.id <span class="op">},</span>
+    include<span class="op">: {</span> user<span class="op">:</span> <span class="kw">true</span> <span class="op">},</span>
+  <span class="op">})</span>
+  <span class="kw">if</span> <span class="op">(!</span>leave <span class="op">||</span> leave.status <span class="op">!==</span> <span class="str">"PENDING"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Not Found"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">404</span> <span class="op">})</span>
+
+  <span class="kw">const</span> cost <span class="op">=</span> leave.type <span class="op">===</span> <span class="str">"ANNUAL"</span> <span class="op">?</span> <span class="num">1</span> <span class="op">:</span> <span class="num">0.5</span>
+
+  <span class="kw">await</span> db.<span class="fn">$transaction</span><span class="op">([</span>
+    db.leaveRequest.<span class="fn">update</span><span class="op">({</span>
+      where<span class="op">: {</span> id<span class="op">:</span> params.id <span class="op">},</span>
+      data<span class="op">:  {</span> status<span class="op">:</span> <span class="str">"APPROVED"</span> <span class="op">},</span>
+    <span class="op">}),</span>
+    db.user.<span class="fn">update</span><span class="op">({</span>
+      where<span class="op">: {</span> id<span class="op">:</span> leave.userId <span class="op">},</span>
+      data<span class="op">:  {</span> annualLeave<span class="op">: {</span> decrement<span class="op">:</span> cost <span class="op">} },</span>
+    <span class="op">}),</span>
+    db.schedule.<span class="fn">create</span><span class="op">({</span>
+      data<span class="op">: {</span>
+        title<span class="op">:</span>          <span class="str">`[연차] </span><span class="op">${</span>leave.user.email<span class="op">}</span><span class="str">`</span><span class="op">,</span>
+        startAt<span class="op">:</span>        leave.date<span class="op">,</span>
+        endAt<span class="op">:</span>          leave.date<span class="op">,</span>
+        allDay<span class="op">:</span>         leave.type <span class="op">===</span> <span class="str">"ANNUAL"</span><span class="op">,</span>
+        creatorId<span class="op">:</span>      session<span class="op">!.</span>user.id<span class="op">,</span>
+        leaveRequestId<span class="op">: </span>leave.id<span class="op">,</span>
+      <span class="op">},</span>
+    <span class="op">}),</span>
+    db.notification.<span class="fn">create</span><span class="op">({</span>
+      data<span class="op">: {</span>
+        userId<span class="op">:</span>  leave.userId<span class="op">,</span>
+        message<span class="op">: </span><span class="str">"연차 신청이 승인되었습니다."</span><span class="op">,</span>
+        url<span class="op">:</span>     <span class="str">`/calendar/</span><span class="op">${</span>leave.id<span class="op">}</span><span class="str">`</span><span class="op">,</span>
+      <span class="op">},</span>
+    <span class="op">}),</span>
+  <span class="op">])</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> ok<span class="op">:</span> <span class="kw">true</span> <span class="op">})</span>
+<span class="op">}</span></pre>
+            </div>
+        </section>
+
+        <section id="api">
+            <h3><span class="section-icon">🌐</span> API 라우트</h3>
+            <table>
+                <thead><tr><th>Method</th><th>경로</th><th>설명</th><th>권한</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td>/api/admin/leave</td><td>PENDING 연차 목록 (직원명·날짜·유형)</td><td>ADMIN</td></tr>
+                    <tr><td>POST</td><td>/api/admin/leave/[id]/approve</td><td>승인: status=APPROVED, annualLeave 차감, Schedule 생성</td><td>ADMIN</td></tr>
+                    <tr><td>POST</td><td>/api/admin/leave/[id]/reject</td><td>반려: status=REJECTED, 직원 알림</td><td>ADMIN</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="security">
+            <h3><span class="section-icon">🔒</span> 보안</h3>
+            <ul class="checklist">
+                <li><span class="check">✓</span> 모든 /api/admin/* 엔드포인트에서 ADMIN role 재검증 필수</li>
+                <li><span class="check">✓</span> 승인·annualLeave 차감·Schedule 생성을 Prisma $transaction으로 원자적 처리</li>
+                <li><span class="check">✓</span> 이미 APPROVED/REJECTED인 신청 재처리 방지 (status=PENDING 확인)</li>
+                <li><span class="check">✓</span> 승인/반려 전 Dialog 컴포넌트로 확인 (confirm() 금지)</li>
+            </ul>
+        </section>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

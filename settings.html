@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 비밀번호 변경 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="badge">DEV MANUAL</div>
+            <h1>Togate Docs</h1>
+            <p>개발자 가이드 v1.0</p>
+        </div>
+        <nav>
+            <div class="nav-section">개요</div>
+            <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">인증</div>
+            <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+            <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+            <a href="settings.html" class="page-active"><span class="icon">⚙️</span> 비밀번호 변경</a>
+            <div class="nav-section">콘텐츠</div>
+            <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+            <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+            <div class="nav-section">일정</div>
+            <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+            <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+            <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+            <div class="nav-section">AI</div>
+            <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+            <div class="nav-section">알림</div>
+            <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+            <div class="nav-section">비밀번호 변경 섹션</div>
+            <a href="#overview" class="active"><span class="icon">📋</span> 개요</a>
+            <a href="#structure"><span class="icon">📁</span> 파일 구조</a>
+            <a href="#flow"><span class="icon">🔄</span> 변경 흐름</a>
+            <a href="#api"><span class="icon">🌐</span> API 라우트</a>
+            <a href="#validation"><span class="icon">✅</span> 유효성 검사</a>
+            <a href="#security"><span class="icon">🔒</span> 보안</a>
+        </nav>
+        <div class="sidebar-footer">Next.js 16 · TypeScript · App Router</div>
+    </aside>
+
+    <div id="main">
+        <div class="topbar">
+            <div class="topbar-breadcrumb">
+                Docs <span style="color:var(--text-dim)">›</span> 인증 <span style="color:var(--text-dim)">›</span>
+                <span>비밀번호 변경</span>
+            </div>
+            <div class="topbar-right">
+                <span class="chip next">⬡ Next.js 16</span>
+                <span class="chip ts">TS TypeScript</span>
+            </div>
+        </div>
+        <div class="content">
+            <div class="page-header">
+                <h2>비밀번호 변경</h2>
+                <p>초기 로그인 시 강제 실행되거나, 사용자가 직접 비밀번호를 변경하는 페이지입니다. <code
+                        style="font-family:var(--font-mono)">proxy.ts</code>가 <code
+                        style="font-family:var(--font-mono)">passwordChanged</code> 필드로 접근을 제어합니다.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+            </div>
+
+            <section id="overview">
+                <h3><span class="section-icon">📋</span> 개요</h3>
+                <p><code style="color:var(--blue);font-family:var(--font-mono)">/settings/password</code>는 한 가지 진입 경로를
+                    가집니다.</p>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> <strong>강제 진입:</strong> 관리자가 생성한 계정 최초 로그인 시
+                        proxy.ts가 리다이렉트</li>
+                </ul>
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p>변경 성공 시 <code style="font-family:var(--font-mono)">User.passwordChanged = true</code>로 업데이트됩니다.
+                        이후 proxy.ts는 해당 사용자를 강제 이동시키지 않습니다.</p>
+                </div>
+            </section>
+
+            <section id="structure">
+                <h3><span class="section-icon">📁</span> 파일 구조</h3>
+                <div class="file-tree">
+                    <div><span class="dir">src/app/settings/</span></div>
+                    <div class="indent"><span class="dir">password/</span></div>
+                    <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 비밀번호 변경
+                            폼 (클라이언트 컴포넌트)</span></div>
+                    <br>
+                    <div><span class="dir">src/app/api/</span></div>
+                    <div class="indent"><span class="file focus">settings/password/route.ts</span> <span
+                            class="comment">← PATCH: 비밀번호 변경 + passwordChanged 업데이트</span></div>
+                    <br>
+                    <div><span class="dir">src/proxy.ts</span> <span class="comment">← passwordChanged=false 시 이 페이지로 강제
+                            이동</span></div>
+                    <div><span class="dir">src/lib/auth.ts</span> <span class="comment">← JWT 세션 (passwordChanged
+                            포함)</span></div>
+                </div>
+            </section>
+
+            <section id="flow">
+                <h3><span class="section-icon">🔄</span> 변경 흐름</h3>
+                <h4>최초 로그인 강제 변경</h4>
+                <div class="flow">
+                    <div class="flow-step">
+                        <div class="step-label">직원</div>
+                        <div class="step-name">로그인</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight">
+                        <div class="step-label">proxy.ts</div>
+                        <div class="step-name">passwordChanged=false</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="step-label">강제</div>
+                        <div class="step-name">/settings/password</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight">
+                        <div class="step-label">PATCH</div>
+                        <div class="step-name">/api/settings/password</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="step-label">완료</div>
+                        <div class="step-name">홈(/) 이동</div>
+                    </div>
+                </div>
+
+                <h4>page.tsx</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span
+                                class="lang-badge lang-tsx">TSX</span>app/settings/password/page.tsx</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="str">"use client"</span>
+
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">useState</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"react"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">useRouter</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/navigation"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">Input</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/components/common/Input"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">Button</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/components/common/Button"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">BottomButtonBar</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/components/common/BottomButtonBar"</span>
+
+<span class="kw">export default function</span> <span class="fn">PasswordPage</span><span class="op">() {</span>
+  <span class="kw">const</span> router <span class="op">=</span> <span class="fn">useRouter</span><span class="op">()</span>
+  <span class="kw">const</span> <span class="op">[</span>error<span class="op">,</span> setError<span class="op">] =</span> <span class="fn">useState</span><span class="op">&lt;</span><span class="ty">string | null</span><span class="op">&gt;(</span><span class="kw">null</span><span class="op">)</span>
+
+  <span class="kw">async function</span> <span class="fn">handleSubmit</span><span class="op">(</span>e<span class="op">:</span> <span class="ty">React.FormEvent&lt;HTMLFormElement&gt;</span><span class="op">) {</span>
+    e.<span class="fn">preventDefault</span><span class="op">()</span>
+    <span class="kw">const</span> fd <span class="op">=</span> <span class="kw">new</span> <span class="fn">FormData</span><span class="op">(</span>e.<span class="fn">currentTarget</span><span class="op">)</span>
+
+    <span class="kw">if</span> <span class="op">(</span>fd.<span class="fn">get</span><span class="op">(</span><span class="str">"newPassword"</span><span class="op">) !== fd.</span><span class="fn">get</span><span class="op">(</span><span class="str">"confirm"</span><span class="op">)) {</span>
+      <span class="fn">setError</span><span class="op">(</span><span class="str">"새 비밀번호가 일치하지 않습니다."</span><span class="op">)</span>
+      <span class="kw">return</span>
+    <span class="op">}</span>
+
+    <span class="kw">const</span> res <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span><span class="op">(</span><span class="str">"/api/settings/password"</span><span class="op">, {</span>
+      method<span class="op">:</span>  <span class="str">"PATCH"</span><span class="op">,</span>
+      headers<span class="op">: {</span> <span class="str">"Content-Type"</span><span class="op">:</span> <span class="str">"application/json"</span> <span class="op">},</span>
+      body<span class="op">:</span>    <span class="fn">JSON.stringify</span><span class="op">({</span>
+        currentPassword<span class="op">:</span> fd.<span class="fn">get</span><span class="op">(</span><span class="str">"currentPassword"</span><span class="op">),</span>
+        newPassword<span class="op">:</span>     fd.<span class="fn">get</span><span class="op">(</span><span class="str">"newPassword"</span><span class="op">),</span>
+      <span class="op">}),</span>
+    <span class="op">})</span>
+
+    <span class="kw">if</span> <span class="op">(!</span>res.ok<span class="op">) {</span>
+      <span class="kw">const</span> <span class="op">{</span> error <span class="op">} =</span> <span class="kw">await</span> res.<span class="fn">json</span><span class="op">()</span>
+      <span class="fn">setError</span><span class="op">(</span>error<span class="op">)</span>
+      <span class="kw">return</span>
+    <span class="op">}</span>
+    router.<span class="fn">push</span><span class="op">(</span><span class="str">"/"</span><span class="op">)</span>
+  <span class="op">}</span>
+
+  <span class="kw">return</span> <span class="op">(</span>
+    <span class="tag">&lt;form</span> <span class="atr">onSubmit</span><span class="op">={</span>handleSubmit<span class="op">}</span><span class="tag">&gt;</span>
+      <span class="op">{</span>error <span class="op">&amp;&amp; &lt;</span><span class="tag">p</span> <span class="atr">role</span><span class="op">=</span><span class="str">"alert"</span><span class="op">&gt;{</span>error<span class="op">}&lt;/</span><span class="tag">p</span><span class="op">&gt;}</span>
+      <span class="tag">&lt;Input</span> <span class="atr">name</span><span class="op">=</span><span class="str">"currentPassword"</span> <span class="atr">type</span><span class="op">=</span><span class="str">"password"</span> <span class="atr">label</span><span class="op">=</span><span class="str">"현재 비밀번호"</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Input</span> <span class="atr">name</span><span class="op">=</span><span class="str">"newPassword"</span>     <span class="atr">type</span><span class="op">=</span><span class="str">"password"</span> <span class="atr">label</span><span class="op">=</span><span class="str">"새 비밀번호"</span>    <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Input</span> <span class="atr">name</span><span class="op">=</span><span class="str">"confirm"</span>         <span class="atr">type</span><span class="op">=</span><span class="str">"password"</span> <span class="atr">label</span><span class="op">=</span><span class="str">"새 비밀번호 확인"</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;BottomButtonBar</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;Button</span> <span class="atr">type</span><span class="op">=</span><span class="str">"submit"</span> <span class="atr">variant</span><span class="op">=</span><span class="str">"primary"</span><span class="tag">&gt;</span>변경하기<span class="tag">&lt;/Button&gt;</span>
+      <span class="tag">&lt;/BottomButtonBar&gt;</span>
+    <span class="tag">&lt;/form&gt;</span>
+  <span class="op">)</span>
+<span class="op">}</span></pre>
+                </div>
+            </section>
+
+            <section id="api">
+                <h3><span class="section-icon">🌐</span> API 라우트</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>경로</th>
+                            <th>설명</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PATCH</td>
+                            <td>/api/settings/password</td>
+                            <td>현재 비밀번호 검증 후 새 비밀번호로 교체, passwordChanged=true 설정</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span
+                                class="lang-badge lang-ts">TS</span>app/api/settings/password/route.ts</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">auth</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
+<span class="kw">import</span> <span class="op">{</span> db <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/db"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">hashPassword</span><span class="op">,</span> <span class="fn">verifyPassword</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/crypto"</span>
+
+<span class="kw">export async function</span> <span class="fn">PATCH</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">if</span> <span class="op">(!</span>session<span class="op">?.user)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Unauthorized"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">401</span> <span class="op">})</span>
+
+  <span class="kw">const</span> <span class="op">{</span> currentPassword<span class="op">,</span> newPassword <span class="op">} =</span> <span class="kw">await</span> req.<span class="fn">json</span><span class="op">()</span>
+
+  <span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> db.user.<span class="fn">findUnique</span><span class="op">({</span> where<span class="op">: {</span> id<span class="op">:</span> session.user.id <span class="op">} })</span>
+  <span class="kw">if</span> <span class="op">(!</span>user<span class="op">)</span> <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Not Found"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">404</span> <span class="op">})</span>
+
+  <span class="kw">const</span> isValid <span class="op">=</span> <span class="kw">await</span> <span class="fn">verifyPassword</span><span class="op">(</span>currentPassword<span class="op">,</span> user.hashedPassword<span class="op">)</span>
+  <span class="kw">if</span> <span class="op">(!</span>isValid<span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"현재 비밀번호가 올바르지 않습니다."</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">400</span> <span class="op">})</span>
+
+  <span class="kw">await</span> db.user.<span class="fn">update</span><span class="op">({</span>
+    where<span class="op">: {</span> id<span class="op">:</span> session.user.id <span class="op">},</span>
+    data<span class="op">: {</span>
+      hashedPassword<span class="op">:</span>  <span class="kw">await</span> <span class="fn">hashPassword</span><span class="op">(</span>newPassword<span class="op">),</span>
+      passwordChanged<span class="op">: true</span><span class="op">,</span>
+    <span class="op">},</span>
+  <span class="op">})</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> ok<span class="op">:</span> <span class="kw">true</span> <span class="op">})</span>
+<span class="op">}</span></pre>
+                </div>
+            </section>
+
+            <section id="validation">
+                <h3><span class="section-icon">✅</span> 유효성 검사</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>필드</th>
+                            <th>규칙</th>
+                            <th>에러 메시지</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>currentPassword</td>
+                            <td>필수, DB 해시와 일치</td>
+                            <td>현재 비밀번호가 올바르지 않습니다.</td>
+                        </tr>
+                        <tr>
+                            <td>newPassword</td>
+                            <td>필수, 8자 이상</td>
+                            <td>비밀번호는 8자 이상이어야 합니다.</td>
+                        </tr>
+                        <tr>
+                            <td>confirm</td>
+                            <td>newPassword와 동일</td>
+                            <td>새 비밀번호가 일치하지 않습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="security">
+                <h3><span class="section-icon">🔒</span> 보안</h3>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>JWT 세션 갱신:</strong> <code style="font-family:var(--font-mono)">passwordChanged</code>를
+                        DB에서 업데이트한 뒤, JWT에 포함된 값도 반영되려면 세션 재발급이 필요합니다. Auth.js v5의 <code
+                            style="font-family:var(--font-mono)">update()</code>를 호출하거나, 재로그인을 유도하세요.</p>
+                </div>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> currentPassword 서버에서 bcrypt 검증 (클라이언트 생략 가능)</li>
+                    <li><span class="check">✓</span> 새 비밀번호 bcrypt (cost factor 12) 해싱 후 저장</li>
+                    <li><span class="check">✓</span> passwordChanged=true 업데이트 후 proxy.ts 강제 이동 해제</li>
+                    <li><span class="check">✓</span> /settings/password는 로그인된 모든 사용자 접근 가능 (proxy.ts matcher 예외 처리)</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

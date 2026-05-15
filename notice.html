@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 공지사항 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<aside id="sidebar">
+    <div class="sidebar-logo">
+        <div class="badge">DEV MANUAL</div>
+        <h1>Togate Docs</h1>
+        <p>개발자 가이드 v1.0</p>
+    </div>
+    <nav>
+        <div class="nav-section">개요</div>
+        <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+        <div class="nav-section">인증</div>
+        <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+        <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+        <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+        <div class="nav-section">콘텐츠</div>
+        <a href="notice.html" class="page-active"><span class="icon">📢</span> 공지사항</a>
+        <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+        <div class="nav-section">일정</div>
+        <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+        <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+        <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+        <div class="nav-section">AI</div>
+        <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+        <div class="nav-section">알림</div>
+        <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+        <div class="nav-section">공지사항 섹션</div>
+        <a href="#overview" class="active"><span class="icon">📋</span> 개요</a>
+        <a href="#structure"><span class="icon">📁</span> 파일 구조</a>
+        <a href="#api"><span class="icon">🌐</span> API 라우트</a>
+        <a href="#db-model"><span class="icon">🗄️</span> DB 모델</a>
+        <a href="#push"><span class="icon">🔔</span> 푸시 알림 연동</a>
+        <a href="#security"><span class="icon">🔒</span> 보안</a>
+    </nav>
+    <div class="sidebar-footer">Next.js 16 · TypeScript · App Router</div>
+</aside>
+
+<div id="main">
+    <div class="topbar">
+        <div class="topbar-breadcrumb">
+            Docs <span style="color:var(--text-dim)">›</span> 콘텐츠 <span style="color:var(--text-dim)">›</span>
+            <span>공지사항</span>
+        </div>
+        <div class="topbar-right">
+            <span class="chip next">⬡ Next.js 16</span>
+            <span class="chip ts">TS TypeScript</span>
+        </div>
+    </div>
+    <div class="content">
+        <div class="page-header">
+            <h2>공지사항</h2>
+            <p>사내 공지사항 CRUD 기능입니다. 공지 등록 시 전체 직원에게 웹 푸시 알림을 발송합니다.</p>
+            <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+        </div>
+
+        <section id="overview">
+            <h3><span class="section-icon">📋</span> 개요</h3>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/notice</code> — 목록 (최신순)</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/notice/new</code> — 작성 (ADMIN)</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/notice/[id]</code> — 상세</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/notice/[id]/edit</code> — 수정 (ADMIN)</li>
+            </ul>
+            <div class="info-box note">
+                <span class="icon">💡</span>
+                <p>공지 등록·수정·삭제는 ADMIN만 가능합니다. 등록 시 <code style="font-family:var(--font-mono)">lib/push.ts</code>를 통해 전체 직원에게 웹 푸시 알림을 발송합니다.</p>
+            </div>
+        </section>
+
+        <section id="structure">
+            <h3><span class="section-icon">📁</span> 파일 구조</h3>
+            <div class="file-tree">
+                <div><span class="dir">src/app/notice/</span></div>
+                <div class="indent"><span class="file focus">page.tsx</span> <span class="comment">← 목록 (서버 컴포넌트)</span></div>
+                <div class="indent"><span class="dir">new/</span></div>
+                <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 작성 폼 (ADMIN)</span></div>
+                <div class="indent"><span class="dir">[id]/</span></div>
+                <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 상세 (서버 컴포넌트)</span></div>
+                <div class="indent indent"><span class="dir">edit/</span></div>
+                <div class="indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 수정 폼 (ADMIN)</span></div>
+                <br>
+                <div><span class="dir">src/app/api/</span></div>
+                <div class="indent"><span class="file">notices/route.ts</span> <span class="comment">← GET(목록) · POST(생성)</span></div>
+                <div class="indent"><span class="file">notices/[id]/route.ts</span> <span class="comment">← GET · PATCH · DELETE</span></div>
+                <br>
+                <div><span class="dir">src/lib/push.ts</span> <span class="comment">← 웹 푸시 발송 유틸</span></div>
+            </div>
+        </section>
+
+        <section id="api">
+            <h3><span class="section-icon">🌐</span> API 라우트</h3>
+            <table>
+                <thead><tr><th>Method</th><th>경로</th><th>설명</th><th>권한</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td>/api/notices</td><td>공지 목록 (최신순, 페이지네이션)</td><td>전체</td></tr>
+                    <tr><td>POST</td><td>/api/notices</td><td>공지 생성 + 전원 웹 푸시 발송</td><td>ADMIN</td></tr>
+                    <tr><td>GET</td><td>/api/notices/[id]</td><td>단일 공지 조회</td><td>전체</td></tr>
+                    <tr><td>PATCH</td><td>/api/notices/[id]</td><td>공지 수정</td><td>ADMIN</td></tr>
+                    <tr><td>DELETE</td><td>/api/notices/[id]</td><td>공지 삭제</td><td>ADMIN</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/notices/route.ts — POST</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">auth</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
+<span class="kw">import</span> <span class="op">{</span> db <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/db"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">sendPushToAll</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/push"</span>
+
+<span class="kw">export async function</span> <span class="fn">POST</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">if</span> <span class="op">(</span>session<span class="op">?.user.role !== </span><span class="str">"ADMIN"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Forbidden"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">403</span> <span class="op">})</span>
+
+  <span class="kw">const</span> <span class="op">{</span> title<span class="op">,</span> content <span class="op">} =</span> <span class="kw">await</span> req.<span class="fn">json</span><span class="op">()</span>
+
+  <span class="kw">const</span> notice <span class="op">=</span> <span class="kw">await</span> db.notice.<span class="fn">create</span><span class="op">({</span>
+    data<span class="op">: {</span> title<span class="op">,</span> content<span class="op">,</span> authorId<span class="op">:</span> session.user.id <span class="op">},</span>
+  <span class="op">})</span>
+
+  <span class="cmt">// 전체 직원 웹 푸시 발송 (실패해도 공지는 저장됨)</span>
+  <span class="kw">await</span> <span class="fn">sendPushToAll</span><span class="op">({</span>
+    title<span class="op">:</span>   <span class="str">"새 공지사항"</span><span class="op">,</span>
+    body<span class="op">:</span>    notice.title<span class="op">,</span>
+    url<span class="op">:</span>     <span class="str">`/notice/</span><span class="op">${</span>notice.id<span class="op">}</span><span class="str">`</span><span class="op">,</span>
+  <span class="op">}).</span><span class="fn">catch</span><span class="op">(</span>console.error<span class="op">)</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">(</span>notice<span class="op">,</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">201</span> <span class="op">})</span>
+<span class="op">}</span></pre>
+            </div>
+        </section>
+
+        <section id="db-model">
+            <h3><span class="section-icon">🗄️</span> DB 모델</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>prisma/schema.prisma — Notice</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre>model <span class="ty">Notice</span> <span class="op">{</span>
+  id        <span class="ty">String</span>   <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  title     <span class="ty">String</span>
+  content   <span class="ty">String</span>
+  authorId  <span class="ty">String</span>
+  author    <span class="ty">User</span>     <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>authorId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">])</span>
+  createdAt <span class="ty">DateTime</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">now</span><span class="op">())</span>
+  updatedAt <span class="ty">DateTime</span> <span class="op">@</span><span class="fn">updatedAt</span>
+<span class="op">}</span></pre>
+            </div>
+        </section>
+
+        <section id="push">
+            <h3><span class="section-icon">🔔</span> 웹 푸시 연동</h3>
+            <p>공지 등록 시 <code style="font-family:var(--font-mono)">lib/push.ts</code>의 <code style="font-family:var(--font-mono)">sendPushToAll()</code>을 호출합니다. 내부적으로 DB의 <code style="font-family:var(--font-mono)">PushSubscription</code> 레코드를 조회해 모든 구독자에게 발송합니다.</p>
+            <div class="info-box warning">
+                <span class="icon">⚠️</span>
+                <p><strong>push 실패 처리:</strong> 푸시 발송 실패(<code style="font-family:var(--font-mono)">410 Gone</code> 등)는 무효 구독이므로 DB에서 삭제해야 합니다. <code style="font-family:var(--font-mono)">sendPushToAll</code> 내부에서 자동 처리되어야 합니다.</p>
+            </div>
+        </section>
+
+        <section id="security">
+            <h3><span class="section-icon">🔒</span> 보안</h3>
+            <ul class="checklist">
+                <li><span class="check">✓</span> POST/PATCH/DELETE — ADMIN role 서버 검증</li>
+                <li><span class="check">✓</span> 공지 삭제 시 Dialog 컴포넌트로 확인 (confirm() 금지)</li>
+                <li><span class="check">✓</span> 웹 푸시 발송 실패 시 공지 저장은 유지 (.catch로 격리)</li>
+                <li><span class="check">✓</span> VAPID 키 환경변수로만 관리 (코드에 하드코딩 금지)</li>
+            </ul>
+        </section>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

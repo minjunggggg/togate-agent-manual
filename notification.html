@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 알림 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<aside id="sidebar">
+    <div class="sidebar-logo">
+        <div class="badge">DEV MANUAL</div>
+        <h1>Togate Docs</h1>
+        <p>개발자 가이드 v1.0</p>
+    </div>
+    <nav>
+        <div class="nav-section">개요</div>
+        <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+        <div class="nav-section">인증</div>
+        <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+        <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+        <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+        <div class="nav-section">콘텐츠</div>
+        <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+        <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+        <div class="nav-section">일정</div>
+        <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+        <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+        <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+        <div class="nav-section">AI</div>
+        <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+        <div class="nav-section">알림</div>
+        <a href="notification.html" class="page-active"><span class="icon">🔔</span> 알림</a>
+        <div class="nav-section">알림 섹션</div>
+        <a href="#overview" class="active"><span class="icon">📋</span> 개요</a>
+        <a href="#structure"><span class="icon">📁</span> 파일 구조</a>
+        <a href="#web-push"><span class="icon">📡</span> 웹 푸시</a>
+        <a href="#api"><span class="icon">🌐</span> API 라우트</a>
+        <a href="#db-model"><span class="icon">🗄️</span> DB 모델</a>
+        <a href="#env"><span class="icon">⚙️</span> 환경변수</a>
+    </nav>
+    <div class="sidebar-footer">Next.js 16 · TypeScript · App Router</div>
+</aside>
+
+<div id="main">
+    <div class="topbar">
+        <div class="topbar-breadcrumb">
+            Docs <span style="color:var(--text-dim)">›</span> 알림 <span style="color:var(--text-dim)">›</span>
+            <span>알림</span>
+        </div>
+        <div class="topbar-right">
+            <span class="chip next">⬡ Next.js 16</span>
+            <span class="chip ts">TS TypeScript</span>
+        </div>
+    </div>
+    <div class="content">
+        <div class="page-header">
+            <h2>알림</h2>
+            <p>앱 내 알림(Notification)과 브라우저 웹 푸시(PushSubscription)를 함께 관리합니다. <code style="font-family:var(--font-mono)">web-push</code> 패키지와 VAPID 키를 사용합니다.</p>
+            <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+        </div>
+
+        <section id="overview">
+            <h3><span class="section-icon">📋</span> 개요</h3>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <strong>앱 내 알림:</strong> Notification 모델 — 연차 승인/반려, 일정 초대 등 저장</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <strong>웹 푸시:</strong> Service Worker + PushSubscription 모델 — 브라우저 백그라운드 수신</li>
+                <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span style="color:var(--primary-light)">→</span> <code>/notification</code> — 알림 목록 페이지</li>
+            </ul>
+            <div class="info-box note">
+                <span class="icon">💡</span>
+                <p>앱 내 알림과 웹 푸시는 독립적으로 동작합니다. 웹 푸시를 허용하지 않아도 앱 내 알림은 정상 표시됩니다.</p>
+            </div>
+        </section>
+
+        <section id="structure">
+            <h3><span class="section-icon">📁</span> 파일 구조</h3>
+            <div class="file-tree">
+                <div><span class="dir">src/app/notification/</span></div>
+                <div class="indent"><span class="file focus">page.tsx</span> <span class="comment">← 알림 목록 (읽음 처리 포함)</span></div>
+                <br>
+                <div><span class="dir">src/app/api/</span></div>
+                <div class="indent"><span class="file">notifications/route.ts</span> <span class="comment">← GET(목록) · PATCH(읽음)</span></div>
+                <div class="indent"><span class="file focus">push/subscribe/route.ts</span> <span class="comment">← POST: 구독 등록</span></div>
+                <div class="indent"><span class="file focus">push/unsubscribe/route.ts</span> <span class="comment">← POST: 구독 해제</span></div>
+                <br>
+                <div><span class="dir">src/lib/</span></div>
+                <div class="indent"><span class="file focus">push.ts</span> <span class="comment">← web-push 발송 유틸 (sendPushToAll, sendPushToUser)</span></div>
+                <br>
+                <div><span class="dir">public/</span></div>
+                <div class="indent"><span class="file focus">sw.js</span> <span class="comment">← Service Worker (push 이벤트 처리)</span></div>
+            </div>
+        </section>
+
+        <section id="web-push">
+            <h3><span class="section-icon">📡</span> 웹 푸시 구현</h3>
+
+            <h4>구독 등록 흐름</h4>
+            <div class="flow">
+                <div class="flow-step"><div class="step-label">사용자</div><div class="step-name">알림 허용</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight"><div class="step-label">브라우저</div><div class="step-name">SW 등록</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="step-label">SW</div><div class="step-name">pushManager.subscribe</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight"><div class="step-label">API</div><div class="step-name">POST /api/push/subscribe</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><div class="step-label">DB</div><div class="step-name">PushSubscription 저장</div></div>
+            </div>
+
+            <h4>lib/push.ts</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>src/lib/push.ts</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre><span class="kw">import</span> webpush <span class="kw">from</span> <span class="str">"web-push"</span>
+<span class="kw">import</span> <span class="op">{</span> db <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/db"</span>
+
+webpush.<span class="fn">setVapidDetails</span><span class="op">(</span>
+  <span class="str">"mailto:admin@togate.com"</span><span class="op">,</span>
+  process.env.<span class="fn">VAPID_PUBLIC_KEY</span><span class="op">!</span><span class="op">,</span>
+  process.env.<span class="fn">VAPID_PRIVATE_KEY</span><span class="op">!</span>
+<span class="op">)</span>
+
+<span class="kw">interface</span> <span class="ty">PushPayload</span> <span class="op">{</span>
+  title<span class="op">:</span> <span class="ty">string</span>
+  body<span class="op">:</span>  <span class="ty">string</span>
+  url<span class="op">?:</span>  <span class="ty">string</span>
+<span class="op">}</span>
+
+<span class="kw">export async function</span> <span class="fn">sendPushToAll</span><span class="op">(</span>payload<span class="op">:</span> <span class="ty">PushPayload</span><span class="op">) {</span>
+  <span class="kw">const</span> subs <span class="op">=</span> <span class="kw">await</span> db.pushSubscription.<span class="fn">findMany</span><span class="op">()</span>
+  <span class="kw">const</span> results <span class="op">=</span> <span class="kw">await</span> Promise.<span class="fn">allSettled</span><span class="op">(</span>
+    subs.<span class="fn">map</span><span class="op">(</span>sub <span class="op">=&gt;</span>
+      webpush.<span class="fn">sendNotification</span><span class="op">(</span>
+        <span class="op">{</span> endpoint<span class="op">:</span> sub.endpoint<span class="op">,</span> keys<span class="op">: {</span> p256dh<span class="op">:</span> sub.p256dh<span class="op">,</span> auth<span class="op">:</span> sub.auth <span class="op">} },</span>
+        <span class="fn">JSON.stringify</span><span class="op">(</span>payload<span class="op">)</span>
+      <span class="op">)</span>
+    <span class="op">)</span>
+  <span class="op">)</span>
+
+  <span class="cmt">// 만료된 구독(410) 자동 삭제</span>
+  <span class="kw">const</span> expired <span class="op">=</span> results
+    .<span class="fn">map</span><span class="op">((r, i) =&gt; ({</span> r<span class="op">,</span> sub<span class="op">:</span> subs<span class="op">[</span>i<span class="op">] }))</span>
+    .<span class="fn">filter</span><span class="op">(({ r }) =&gt;</span> r.status <span class="op">===</span> <span class="str">"rejected"</span> <span class="op">&amp;&amp;</span>
+      <span class="op">(</span>r.reason<span class="op">?.</span>statusCode <span class="op">===</span> <span class="num">410</span> <span class="op">||</span> r.reason<span class="op">?.</span>statusCode <span class="op">===</span> <span class="num">404</span><span class="op">))</span>
+
+  <span class="kw">if</span> <span class="op">(</span>expired.length<span class="op">) {</span>
+    <span class="kw">await</span> db.pushSubscription.<span class="fn">deleteMany</span><span class="op">({</span>
+      where<span class="op">: {</span> id<span class="op">: {</span> in<span class="op">:</span> expired.<span class="fn">map</span><span class="op">(({</span> sub <span class="op">}) =&gt;</span> sub.id<span class="op">) } },</span>
+    <span class="op">})</span>
+  <span class="op">}</span>
+<span class="op">}</span></pre>
+            </div>
+
+            <h4>Service Worker (public/sw.js)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">JS</span>public/sw.js</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre>self.<span class="fn">addEventListener</span><span class="op">(</span><span class="str">"push"</span><span class="op">, (</span>event<span class="op">) => {</span>
+  <span class="kw">const</span> data <span class="op">=</span> event.data<span class="op">?.</span><span class="fn">json</span><span class="op">() ?? {}</span>
+  event.<span class="fn">waitUntil</span><span class="op">(</span>
+    self.registration.<span class="fn">showNotification</span><span class="op">(</span>data.title <span class="op">??</span> <span class="str">"Togate"</span><span class="op">, {</span>
+      body<span class="op">:</span> data.body<span class="op">,</span>
+      data<span class="op">: {</span> url<span class="op">:</span> data.url <span class="op">},</span>
+    <span class="op">})</span>
+  <span class="op">)</span>
+<span class="op">})</span>
+
+self.<span class="fn">addEventListener</span><span class="op">(</span><span class="str">"notificationclick"</span><span class="op">, (</span>event<span class="op">) => {</span>
+  event.notification.<span class="fn">close</span><span class="op">()</span>
+  <span class="kw">const</span> url <span class="op">=</span> event.notification.data<span class="op">?.url</span>
+  <span class="kw">if</span> <span class="op">(</span>url<span class="op">)</span> event.<span class="fn">waitUntil</span><span class="op">(</span>clients.<span class="fn">openWindow</span><span class="op">(</span>url<span class="op">))</span>
+<span class="op">})</span></pre>
+            </div>
+        </section>
+
+        <section id="api">
+            <h3><span class="section-icon">🌐</span> API 라우트</h3>
+            <table>
+                <thead><tr><th>Method</th><th>경로</th><th>설명</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td>/api/notifications</td><td>본인 알림 목록 (읽음/미읽음)</td></tr>
+                    <tr><td>PATCH</td><td>/api/notifications</td><td>알림 전체 읽음 처리</td></tr>
+                    <tr><td>PATCH</td><td>/api/notifications/[id]</td><td>단일 알림 읽음 처리</td></tr>
+                    <tr><td>POST</td><td>/api/push/subscribe</td><td>웹 푸시 구독 등록</td></tr>
+                    <tr><td>POST</td><td>/api/push/unsubscribe</td><td>웹 푸시 구독 해제</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="db-model">
+            <h3><span class="section-icon">🗄️</span> DB 모델</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>prisma/schema.prisma — Notification · PushSubscription</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre>model <span class="ty">Notification</span> <span class="op">{</span>
+  id        <span class="ty">String</span>   <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  userId    <span class="ty">String</span>
+  message   <span class="ty">String</span>
+  url       <span class="ty">String</span><span class="op">?</span>
+  isRead    <span class="ty">Boolean</span>  <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="kw">false</span><span class="op">)</span>
+  createdAt <span class="ty">DateTime</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">now</span><span class="op">())</span>
+  user      <span class="ty">User</span>     <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>userId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">])</span>
+<span class="op">}</span>
+
+model <span class="ty">PushSubscription</span> <span class="op">{</span>
+  id       <span class="ty">String</span> <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  userId   <span class="ty">String</span>
+  endpoint <span class="ty">String</span> <span class="op">@</span><span class="fn">unique</span>
+  p256dh   <span class="ty">String</span>
+  auth     <span class="ty">String</span>
+  user     <span class="ty">User</span>   <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>userId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">])</span>
+<span class="op">}</span></pre>
+            </div>
+        </section>
+
+        <section id="env">
+            <h3><span class="section-icon">⚙️</span> 환경변수</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-label"><span class="lang-badge lang-env">ENV</span>.env.local</div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <pre><span class="cmt"># VAPID 키 생성: npx web-push generate-vapid-keys</span>
+VAPID_PUBLIC_KEY=<span class="str">BxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxA</span>
+VAPID_PRIVATE_KEY=<span class="str">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span></pre>
+            </div>
+            <div class="info-box warning">
+                <span class="icon">⚠️</span>
+                <p><strong>VAPID_PUBLIC_KEY</strong>는 프론트엔드 Service Worker 등록 시에도 사용됩니다. <code style="font-family:var(--font-mono)">NEXT_PUBLIC_VAPID_PUBLIC_KEY</code>로 노출해야 클라이언트에서 접근 가능합니다.</p>
+            </div>
+        </section>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

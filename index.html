@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 프로젝트 개요 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="badge">DEV MANUAL</div>
+            <h1>Togate Docs</h1>
+            <p>개발자 가이드 v1.0</p>
+        </div>
+        <nav>
+            <div class="nav-section">개요</div>
+            <a href="index.html" class="page-active"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">인증</div>
+            <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+            <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+            <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+            <div class="nav-section">콘텐츠</div>
+            <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+            <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+            <div class="nav-section">일정</div>
+            <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+            <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+            <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+            <div class="nav-section">AI</div>
+            <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+            <div class="nav-section">알림</div>
+            <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+            <div class="nav-section">이 페이지</div>
+            <a href="#overview" class="active"><span class="icon">📋</span> 프로젝트 소개</a>
+            <a href="#tech-stack"><span class="icon">⚡</span> 기술 스택</a>
+            <a href="#folder-structure"><span class="icon">📁</span> 폴더 구조</a>
+            <a href="#key-files"><span class="icon">🗂️</span> 핵심 파일</a>
+            <a href="#db-models"><span class="icon">🗄️</span> DB 모델</a>
+            <a href="#routes"><span class="icon">🌐</span> 라우트 구조</a>
+            <a href="#components"><span class="icon">🧩</span> 공용 컴포넌트</a>
+            <a href="#cron"><span class="icon">⏰</span> Vercel Cron</a>
+            <a href="#dev-commands"><span class="icon">💻</span> 개발 명령어</a>
+        </nav>
+        <div class="sidebar-footer">
+            Next.js 16 · TypeScript · App Router
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div id="main">
+        <div class="topbar">
+            <div class="topbar-breadcrumb">
+                Docs <span style="color:var(--text-dim)">›</span>
+                <span>프로젝트 개요</span>
+            </div>
+            <div class="topbar-right">
+                <span class="chip next">⬡ Next.js 16</span>
+                <span class="chip ts">TS TypeScript</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-header">
+                <h2>프로젝트 개요</h2>
+                <p>Togate 사내앱의 기능, 기술 스택, 폴더 구조, 핵심 파일을 한눈에 파악합니다.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+            </div>
+
+            <!-- 1. OVERVIEW -->
+            <section id="overview">
+                <h3><span class="section-icon">📋</span> 프로젝트 소개</h3>
+                <p><strong>Togate</strong>는 모바일 웹 기반 PWA 사내앱입니다. AI 음성 회의록, 일정/연차 관리, 공지사항, 비상연락망, 웹 푸시 알림 기능을 포함하며
+                    Capacitor 8을 통해 iOS 네이티브 앱으로도 배포됩니다.</p>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>사내 전용 앱:</strong> 공개 회원가입이 없습니다. 모든 계정은 ADMIN이 직접 생성하며, 첫 로그인 시 비밀번호 변경이 강제됩니다.</p>
+                </div>
+
+                <h4>주요 기능</h4>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> AI 음성 회의록 (Gemini 2.5 Flash / GPT-4o-mini)</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 일정 관리 + 연차/반차 신청 및 반려</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 공지사항 (전직원 작성, 푸시 알림)</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 비상연락망 (직원 디렉토리)</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 웹 푸시 알림 (Service Worker + VAPID)</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> Capacitor 8 iOS 네이티브 앱 래퍼</li>
+                </ul>
+            </section>
+
+            <!-- 2. TECH STACK -->
+            <section id="tech-stack">
+                <h3><span class="section-icon">⚡</span> 기술 스택</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>분류</th>
+                            <th>기술</th>
+                            <th>버전</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>프레임워크</td>
+                            <td>Next.js (App Router)</td>
+                            <td><span class="chip next" style="font-size:11px">16.2.2</span></td>
+                        </tr>
+                        <tr>
+                            <td>라이브러리</td>
+                            <td>React</td>
+                            <td>React 19.2.4</td>
+                        </tr>
+                        <tr>
+                            <td>언어</td>
+                            <td>TypeScript</td>
+                            <td>TypeScript 5</td>
+                        </tr>
+                        <tr>
+                            <td>스타일링</td>
+                            <td>Tailwind CSS (PostCSS 방식)</td>
+                            <td>v4</td>
+                        </tr>
+                        <tr>
+                            <td>인증</td>
+                            <td>Auth.js (JWT 세션)</td>
+                            <td>next-auth@beta (v5)</td>
+                        </tr>
+                        <tr>
+                            <td>ORM / DB</td>
+                            <td>Prisma + PostgreSQL + <code
+                                    style="font-family:var(--font-mono);font-size:12px">@prisma/adapter-pg</code></td>
+                            <td>Prisma 7</td>
+                        </tr>
+                        <tr>
+                            <td>AI</td>
+                            <td>Gemini 2.5 Flash (기본) / GPT-4o-mini (선택)</td>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">AI_PROVIDER</code> env</td>
+                        </tr>
+                        <tr>
+                            <td>웹 푸시</td>
+                            <td>web-push 패키지 + Service Worker</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>모바일</td>
+                            <td>Capacitor (iOS 네이티브 래퍼)</td>
+                            <td>v8</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>Next.js 16 주의:</strong> <code style="font-family:var(--font-mono)">middleware.ts</code>
+                        대신 <code style="font-family:var(--font-mono)">src/proxy.ts</code>를 사용합니다. <code
+                            style="font-family:var(--font-mono)">proxy</code>(not <code
+                            style="font-family:var(--font-mono)">middleware</code>)와 <code
+                            style="font-family:var(--font-mono)">config</code>를 export해야 합니다.</p>
+                </div>
+
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>Prisma 7 필수:</strong> <code
+                            style="font-family:var(--font-mono)">@prisma/adapter-pg</code> 어댑터가 없으면 런타임 에러가 발생합니다. <code
+                            style="font-family:var(--font-mono)">lib/db.ts</code>에서 반드시 어댑터를 주입해야 합니다.</p>
+                </div>
+            </section>
+
+            <!-- 3. FOLDER STRUCTURE -->
+            <section id="folder-structure">
+                <h3><span class="section-icon">📁</span> 폴더 구조</h3>
+                <p>Next.js App Router 구조를 따르며, 모든 소스 코드는 <code style="font-family:var(--font-mono)">src/</code> 디렉토리 아래에
+                    위치합니다.</p>
+
+                <div class="file-tree"><pre>src
+├── app
+│   ├── (app)
+│   │   ├── (home)
+│   │   │   ├── BannerSlider.tsx
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── admin
+│   │   │   └── leave
+│   │   │       ├── [id]
+│   │   │       │   ├── UserLeaveDetail.tsx
+│   │   │       │   └── page.tsx
+│   │   │       ├── approve
+│   │   │       │   ├── LeaveApprovalList.tsx
+│   │   │       │   └── page.tsx
+│   │   │       ├── EmployeeLeaveList.tsx
+│   │   │       └── page.tsx
+│   │   ├── calendar
+│   │   │   ├── [id]
+│   │   │   │   ├── CancelLeaveButton.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   ├── result
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── NewLeaveForm.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── contacts
+│   │   │   ├── [id]
+│   │   │   │   ├── edit
+│   │   │   │   │   ├── EditClient.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── CopyButton.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── ContactShared.tsx
+│   │   │   ├── ContactsClient.tsx
+│   │   │   └── page.tsx
+│   │   ├── meeting
+│   │   │   ├── [id]
+│   │   │   │   ├── MeetingDetailClient.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── folder
+│   │   │   │   └── [id]
+│   │   │   │       ├── DeleteFolderButton.tsx
+│   │   │   │       └── page.tsx
+│   │   │   ├── new
+│   │   │   │   ├── record
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── result
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── CreateFolderButton.tsx
+│   │   │   ├── CreateFolderSheet.tsx
+│   │   │   ├── MeetingSearch.tsx
+│   │   │   ├── MeetingShell.tsx
+│   │   │   ├── SectionHeader.tsx
+│   │   │   └── page.tsx
+│   │   ├── menu
+│   │   │   └── page.tsx
+│   │   ├── notice
+│   │   │   ├── [id]
+│   │   │   │   ├── edit
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── NoticeDetailActions.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   ├── NoticeForm.tsx
+│   │   │   ├── NoticeListClient.tsx
+│   │   │   └── page.tsx
+│   │   ├── notification
+│   │   │   └── page.tsx
+│   │   ├── schedule
+│   │   │   ├── [id]
+│   │   │   │   ├── edit
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   ├── week
+│   │   │   │   ├── WeeklyView.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── MonthlyCalendar.tsx
+│   │   │   ├── ScheduleFilterContext.tsx
+│   │   │   ├── ScheduleSubHeader.tsx
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── users
+│   │   │   ├── new
+│   │   │   │   ├── profile
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── UsersClient.tsx
+│   │   │   └── page.tsx
+│   │   ├── error.tsx
+│   │   ├── layout.tsx
+│   │   ├── loading.css
+│   │   └── loading.tsx
+│   ├── api
+│   │   ├── admin
+│   │   │   └── users
+│   │   │       ├── [id]
+│   │   │       │   └── route.ts
+│   │   │       └── route.ts
+│   │   ├── auth
+│   │   │   └── [...nextauth]
+│   │   │       └── route.ts
+│   │   ├── contacts
+│   │   │   └── [id]
+│   │   │       └── route.ts
+│   │   ├── cron
+│   │   │   ├── daily-schedule-reminder
+│   │   │   │   └── route.ts
+│   │   │   └── reset-annual-leave
+│   │   │       └── route.ts
+│   │   ├── employees
+│   │   │   └── route.ts
+│   │   ├── leave
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── meeting
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   ├── folders
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── generate
+│   │   │   │   └── route.ts
+│   │   │   ├── transcribe
+│   │   │   │   ├── ws-token
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── notice
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── notifications
+│   │   │   └── route.ts
+│   │   ├── push
+│   │   │   ├── debug
+│   │   │   │   └── route.ts
+│   │   │   ├── subscribe
+│   │   │   │   └── route.ts
+│   │   │   └── test
+│   │   │       └── route.ts
+│   │   ├── schedule
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   ├── generate
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   └── user
+│   │       └── password
+│   │           └── route.ts
+│   ├── login
+│   │   ├── actions.ts
+│   │   └── page.tsx
+│   ├── settings
+│   │   └── password
+│   │       └── page.tsx
+│   ├── favicon.ico
+│   ├── global-error.tsx
+│   ├── globals.css
+│   └── layout.tsx
+├── components
+│   ├── admin
+│   │   └── UserManagement.tsx
+│   ├── common
+│   │   ├── AdminBadge.tsx
+│   │   ├── BottomButtonBar.tsx
+│   │   ├── BoxInput.tsx
+│   │   ├── Button.tsx
+│   │   ├── Dialog.tsx
+│   │   ├── EmptyState.tsx
+│   │   ├── FieldLabel.tsx
+│   │   ├── Input.tsx
+│   │   └── LogoutButton.tsx
+│   ├── layout
+│   │   ├── AppShell.tsx
+│   │   ├── BackHeader.tsx
+│   │   ├── Header.tsx
+│   │   └── SessionGuard.tsx
+│   ├── schedule
+│   │   ├── EmployeeBottomSheet.tsx
+│   │   ├── ScheduleForm.tsx
+│   │   └── VoiceSheet.tsx
+│   └── Providers.tsx
+├── hooks
+│   └── usePushSubscription.ts
+├── lib
+│   ├── ai
+│   │   └── provider.ts
+│   ├── auth.config.ts
+│   ├── auth.ts
+│   ├── db.ts
+│   ├── holidays.ts
+│   ├── push.ts
+│   ├── pushMessages.ts
+│   └── utils.ts
+├── types
+│   └── next-auth.d.ts
+└── proxy.ts</pre>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>Prisma 7 import 경로:</strong> <code
+                            style="font-family:var(--font-mono)">@/generated/prisma/client</code> — <code
+                            style="font-family:var(--font-mono)">@prisma/client</code>가 아닙니다.</p>
+                </div>
+            </section>
+
+            <!-- 4. KEY FILES -->
+            <section id="key-files">
+                <h3><span class="section-icon">🗂️</span> 핵심 파일</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>파일</th>
+                            <th>역할</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/proxy.ts</code>
+                            </td>
+                            <td>인증 게이트, 초기 비밀번호 강제 변경, admin 권한 체크. Next.js 16에서 <code
+                                    style="font-family:var(--font-mono);font-size:12px">middleware.ts</code> 대체</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/lib/db.ts</code>
+                            </td>
+                            <td>Prisma 클라이언트 싱글턴. <code
+                                    style="font-family:var(--font-mono);font-size:12px">PrismaPg</code> 어댑터 주입 필수</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/lib/auth.ts</code>
+                            </td>
+                            <td>NextAuth(Auth.js v5) 설정. Credentials Provider, JWT 세션, 커스텀 로그인 페이지</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/lib/ai/provider.ts</code>
+                            </td>
+                            <td>AI 추상화 레이어. <code
+                                    style="font-family:var(--font-mono);font-size:12px">getAIProvider()</code>를 호출하면
+                                <code style="font-family:var(--font-mono);font-size:12px">AI_PROVIDER</code> env에 따라
+                                Gemini 또는 OpenAI 반환
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">src/lib/push.ts</code>
+                            </td>
+                            <td>웹 푸시 발송. <code
+                                    style="font-family:var(--font-mono);font-size:12px">sendPushToAll()</code> — 만료된
+                                구독(410/404)은 자동 삭제</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">prisma/schema.prisma</code>
+                            </td>
+                            <td>DB 스키마. generator output은 반드시 <code
+                                    style="font-family:var(--font-mono);font-size:12px">../src/generated/prisma</code>로
+                                설정</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">prisma.config.ts</code>
+                            </td>
+                            <td>Prisma 7 설정 파일. <code
+                                    style="font-family:var(--font-mono);font-size:12px">DATABASE_URL</code> 등 datasource
+                                설정 처리</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Prisma 7 설정 규칙</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">Prisma</span>prisma/schema.prisma —
+                            generator 설정</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">generator</span> client <span class="op">{</span>
+  provider <span class="op">=</span> <span class="str">"prisma-client"</span>
+  output   <span class="op">=</span> <span class="str">"../src/generated/prisma"</span>
+<span class="op">}</span>
+
+<span class="cmt">// datasource에 url = env(...) 작성 불필요 — prisma.config.ts가 처리</span>
+<span class="kw">datasource</span> db <span class="op">{</span>
+  provider <span class="op">=</span> <span class="str">"postgresql"</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>src/lib/db.ts — Prisma 클라이언트
+                        </div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaPg</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@prisma/adapter-pg"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaClient</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/generated/prisma/client"</span>
+
+<span class="kw">const</span> adapter <span class="op">=</span> <span class="kw">new</span> <span class="fn">PrismaPg</span><span class="op">({</span> connectionString<span class="op">:</span> process.env.DATABASE_URL <span class="op">})</span>
+<span class="kw">export const</span> db <span class="op">=</span> <span class="kw">new</span> <span class="fn">PrismaClient</span><span class="op">({</span> adapter <span class="op">})</span></pre>
+                </div>
+            </section>
+
+            <!-- 5. DB MODELS -->
+            <section id="db-models">
+                <h3><span class="section-icon">🗄️</span> DB 모델</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>모델</th>
+                            <th>주요 필드</th>
+                            <th>설명</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">User</code>
+                            </td>
+                            <td>email, hashedPassword, role, annualLeave, passwordChanged</td>
+                            <td>role: <code style="font-family:var(--font-mono);font-size:12px">ADMIN</code> / <code
+                                    style="font-family:var(--font-mono);font-size:12px">EMPLOYEE</code>. 기본 annualLeave
+                                = 15</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Employee</code>
+                            </td>
+                            <td>name, phone?, position, userId @unique</td>
+                            <td>User와 1:1 연결. 비상연락망에서 사용</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">LeaveRequest</code>
+                            </td>
+                            <td>type, status, date, userId</td>
+                            <td>type: ANNUAL(1일) / HALF_DAY_AM / HALF_DAY_PM(0.5일). status: PENDING / APPROVED /
+                                REJECTED</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Schedule</code>
+                            </td>
+                            <td>inviteeIds String[], allDay, leaveRequestId?</td>
+                            <td>inviteeIds는 Employee ID 배열. 연차 승인 시 leaveRequestId 연결</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">MeetingMinute</code>
+                            </td>
+                            <td>transcript, summary, keywords String[], speakerMap Json</td>
+                            <td>AI 회의록. speakerMap은 <code
+                                    style="font-family:var(--font-mono);font-size:12px">Record&lt;string, string[]&gt;</code>로
+                                캐스팅</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">MeetingFolder</code>
+                            </td>
+                            <td>type, ownerId?, deletedAt?</td>
+                            <td>type: PERSONAL / SHARED. 소프트 딜리트 (deletedAt). PERSONAL은 ownerId 일치 검증 필수</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Notice</code>
+                            </td>
+                            <td>title, content, authorId</td>
+                            <td>공지사항. POST 후 <code
+                                    style="font-family:var(--font-mono);font-size:12px">sendPushToAll().catch(console.error)</code>
+                                호출</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Notification</code>
+                            </td>
+                            <td>message, isRead, userId</td>
+                            <td>앱 내 알림. 일정 초대, 연차 승인/반려 시 생성</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">PushSubscription</code>
+                            </td>
+                            <td>endpoint, p256dh, auth, userId</td>
+                            <td>웹 푸시 구독 정보. 410/404 응답 시 자동 삭제</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 6. ROUTES -->
+            <section id="routes">
+                <h3><span class="section-icon">🌐</span> 라우트 구조</h3>
+
+                <div class="file-tree">
+                    <div><span class="comment">페이지 라우트</span></div>
+                    <div><span class="file focus">/</span> <span class="comment">← 홈 (인증 필요)</span></div>
+                    <div><span class="file">/login</span></div>
+                    <div><span class="file">/settings/password</span> <span class="comment">← 초기 로그인 시 강제 이동</span>
+                    </div>
+                    <br>
+                    <div><span class="comment">캘린더 / 연차</span></div>
+                    <div><span class="file">/calendar</span></div>
+                    <div><span class="file">/calendar/new</span></div>
+                    <div><span class="file">/calendar/[id]</span></div>
+                    <br>
+                    <div><span class="comment">일정 관리</span></div>
+                    <div><span class="file">/schedule</span></div>
+                    <div><span class="file">/schedule/week</span></div>
+                    <div><span class="file">/schedule/new</span></div>
+                    <div><span class="file">/schedule/[id]</span></div>
+                    <div><span class="file">/schedule/[id]/edit</span></div>
+                    <br>
+                    <div><span class="comment">비상연락망</span></div>
+                    <div><span class="file">/contacts</span></div>
+                    <div><span class="file">/contacts/[id]</span></div>
+                    <div><span class="file">/contacts/[id]/edit</span> <span class="comment">← ADMIN only</span></div>
+                    <br>
+                    <div><span class="comment">AI 회의록</span></div>
+                    <div><span class="file">/meeting</span></div>
+                    <div><span class="file">/meeting/new</span></div>
+                    <div><span class="file">/meeting/new/record</span></div>
+                    <div><span class="file">/meeting/new/result</span></div>
+                    <div><span class="file">/meeting/[id]</span></div>
+                    <div><span class="file">/meeting/folder/[id]</span></div>
+                    <br>
+                    <div><span class="comment">공지사항</span></div>
+                    <div><span class="file">/notice</span></div>
+                    <div><span class="file">/notice/new</span> <span class="comment">← ADMIN only</span></div>
+                    <div><span class="file">/notice/[id]</span></div>
+                    <div><span class="file">/notice/[id]/edit</span> <span class="comment">← ADMIN only</span></div>
+                    <br>
+                    <div><span class="comment">알림 / 사용자</span></div>
+                    <div><span class="file">/notification</span></div>
+                    <div><span class="file">/users</span> <span class="comment">← ADMIN only</span></div>
+                    <div><span class="file">/users/new</span> <span class="comment">← ADMIN only</span></div>
+                    <div><span class="file">/users/new/profile</span></div>
+                    <div><span class="file">/menu</span></div>
+                    <br>
+                    <div><span class="comment">연차 관리 (ADMIN)</span></div>
+                    <div><span class="file">/admin/leave</span></div>
+                    <div><span class="file">/admin/leave/approve</span></div>
+                    <div><span class="file">/admin/leave/[id]</span></div>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>ADMIN 접근 제어:</strong> ADMIN 전용 라우트는 <code
+                            style="font-family:var(--font-mono)">proxy.ts</code>에서 <code
+                            style="font-family:var(--font-mono)">session.user.role</code>을 확인하거나, API Route Handler에서 직접
+                        검사합니다.</p>
+                </div>
+            </section>
+
+            <!-- 7. COMPONENTS -->
+            <section id="components">
+                <h3><span class="section-icon">🧩</span> 공용 컴포넌트</h3>
+                <p><code style="font-family:var(--font-mono)">src/components/common/</code>에 위치한 공용 컴포넌트 목록입니다.</p>
+
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong><code style="font-family:var(--font-mono)">confirm()</code> 절대 금지:</strong> 브라우저 기본 <code
+                            style="font-family:var(--font-mono)">window.confirm()</code>은 사용하지 마세요. 모달 확인 대화상자는 반드시
+                        <code style="font-family:var(--font-mono)">Dialog.tsx</code> 컴포넌트를 사용해야 합니다.
+                    </p>
+                </div>
+
+                <h4>Dialog.tsx — 확인 대화상자</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-tsx">TSX</span>components/common/Dialog.tsx
+                            사용 예시</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="op">{</span>isOpen <span class="op">&amp;&amp;</span>
+  <span class="tag">&lt;Dialog</span>
+    <span class="atr">message</span><span class="op">=</span><span class="str">"삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다."</span>
+    <span class="atr">buttons</span><span class="op">={[</span>
+      <span class="op">{</span> label<span class="op">:</span> <span class="str">"취소"</span><span class="op">,</span> onClick<span class="op">: () =&gt;</span> <span class="fn">setIsOpen</span><span class="op">(</span><span class="kw">false</span><span class="op">) },</span>
+      <span class="op">{</span> label<span class="op">:</span> <span class="str">"삭제"</span><span class="op">,</span> variant<span class="op">:</span> <span class="str">"primary"</span><span class="op">,</span> onClick<span class="op">:</span> handleDelete <span class="op">},</span>
+    <span class="op">]}</span>
+  <span class="tag">/&gt;</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <h4>컴포넌트 목록</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>컴포넌트</th>
+                            <th>설명</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Dialog.tsx</code>
+                            </td>
+                            <td>확인/취소 대화상자. <strong>confirm() 대체 필수</strong></td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Button.tsx</code>
+                            </td>
+                            <td>공용 버튼. variant: primary / secondary / danger</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">Input.tsx</code>
+                            </td>
+                            <td>텍스트 입력 필드</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">BoxInput.tsx</code>
+                            </td>
+                            <td>박스형 입력 필드 (텍스트에어리어 등)</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">FieldLabel.tsx</code>
+                            </td>
+                            <td>폼 필드 레이블</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">BottomButtonBar.tsx</code>
+                            </td>
+                            <td>화면 하단 고정 버튼 바</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">EmptyState.tsx</code>
+                            </td>
+                            <td>데이터 없을 때 빈 상태 표시</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">AdminBadge.tsx</code>
+                            </td>
+                            <td>ADMIN 권한 배지</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 8. CRON -->
+            <section id="cron">
+                <h3><span class="section-icon">⏰</span> Vercel Cron</h3>
+                <p><code style="font-family:var(--font-mono)">vercel.json</code>에 정의된 두 개의 Cron Job이 있습니다.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>경로</th>
+                            <th>스케줄</th>
+                            <th>동작</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">/api/cron/daily-schedule-reminder</code>
+                            </td>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">0 0 * * *</code> (매일 00:00
+                                UTC)</td>
+                            <td>당일 일정이 있는 직원에게 알림 발송</td>
+                        </tr>
+                        <tr>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">/api/cron/reset-annual-leave</code>
+                            </td>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">0 15 31 12 *</code> (12/31
+                                15:00 UTC = 1/1 00:00 KST)</td>
+                            <td>전 직원 annualLeave를 15일로 초기화</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>Cron 인증 — Authorization 헤더 검증
+                        </div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">export async function</span> <span class="fn">GET</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">) {</span>
+  <span class="kw">const</span> authHeader <span class="op">=</span> req.headers.<span class="fn">get</span><span class="op">(</span><span class="str">"authorization"</span><span class="op">)</span>
+  <span class="kw">if</span> <span class="op">(</span>authHeader <span class="op">!==</span> <span class="str">`Bearer <span class="op">${</span>process.env.CRON_SECRET<span class="op">}</span>`</span><span class="op">)</span> <span class="op">{</span>
+    <span class="kw">return</span> <span class="fn">Response</span>.<span class="fn">json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Unauthorized"</span> <span class="op">}, {</span> status<span class="op">: </span><span class="num">401</span> <span class="op">})</span>
+  <span class="op">}</span>
+  <span class="cmt">// ... cron logic</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>CRON_SECRET:</strong> Vercel 환경변수에 설정해야 합니다. Cron Job 요청 시 Vercel이 자동으로 <code
+                            style="font-family:var(--font-mono)">Authorization: Bearer {CRON_SECRET}</code> 헤더를 추가합니다.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 9. DEV COMMANDS -->
+            <section id="dev-commands">
+                <h3><span class="section-icon">💻</span> 개발 명령어</h3>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-env">Shell</span>개발 명령어</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 개발 서버 (webpack 빌더 사용)</span>
+npm run dev          <span class="cmt"># next dev --webpack</span>
+
+<span class="cmt"># DB 관리</span>
+npm run db:migrate   <span class="cmt"># prisma migrate dev</span>
+npm run db:seed      <span class="cmt"># 초기 관리자 계정 생성</span>
+npm run db:studio    <span class="cmt"># Prisma Studio 실행</span>
+
+<span class="cmt"># 빌드 (Prisma 생성 포함)</span>
+npm run build        <span class="cmt"># prisma generate && next build --webpack</span></pre>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>명령어</th>
+                            <th>설명</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">npm run dev</code></td>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">next dev --webpack</code> —
+                                webpack 빌더로 개발 서버 실행</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">npm run db:migrate</code></td>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">prisma migrate dev</code> — DB
+                                스키마 마이그레이션</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">npm run db:seed</code></td>
+                            <td>초기 관리자 계정 생성 — <code
+                                    style="font-family:var(--font-mono);font-size:12px">admin@togate.com / admin1234!</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">npm run db:studio</code></td>
+                            <td>Prisma Studio (DB GUI) 실행</td>
+                        </tr>
+                        <tr>
+                            <td><code style="font-family:var(--font-mono);font-size:12px">npm run build</code></td>
+                            <td><code
+                                    style="font-family:var(--font-mono);font-size:12px">prisma generate && next build --webpack</code>
+                                — Prisma 클라이언트 생성 후 빌드</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>환경변수:</strong> <code style="font-family:var(--font-mono)">.env.local</code>에 <code
+                            style="font-family:var(--font-mono)">DATABASE_URL</code>, <code
+                            style="font-family:var(--font-mono)">AUTH_SECRET</code>, <code
+                            style="font-family:var(--font-mono)">GEMINI_API_KEY</code>, <code
+                            style="font-family:var(--font-mono)">VAPID_PUBLIC_KEY</code>, <code
+                            style="font-family:var(--font-mono)">VAPID_PRIVATE_KEY</code>, <code
+                            style="font-family:var(--font-mono)">CRON_SECRET</code>를 설정하세요. 로그인 페이지 문서에서 전체 환경변수 목록을 확인할
+                        수 있습니다.</p>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
