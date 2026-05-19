@@ -73,7 +73,7 @@
             </ul>
             <div class="info-box note">
                 <span class="icon">💡</span>
-                <p>모든 로그인 사용자가 목록·상세를 조회할 수 있습니다. 수정은 ADMIN만 가능합니다.</p>
+                <p>모든 로그인 사용자가 목록·상세를 조회하고 정보를 수정할 수 있습니다. 삭제는 ADMIN만 가능합니다.</p>
             </div>
         </section>
 
@@ -89,7 +89,7 @@
                 <br>
                 <div><span class="dir">src/app/api/</span></div>
                 <div class="indent"><span class="file">contacts/route.ts</span> <span class="comment">← GET: 전체 직원 목록</span></div>
-                <div class="indent"><span class="file">contacts/[id]/route.ts</span> <span class="comment">← GET · PATCH</span></div>
+                <div class="indent"><span class="file focus">contacts/[id]/route.ts</span> <span class="comment">← PATCH · DELETE</span></div>
             </div>
         </section>
 
@@ -100,26 +100,78 @@
                 <tbody>
                     <tr><td>GET</td><td>/api/contacts</td><td>전체 직원 목록 (이름·직책·전화 포함)</td><td>전체</td></tr>
                     <tr><td>GET</td><td>/api/contacts/[id]</td><td>단일 직원 상세</td><td>전체</td></tr>
-                    <tr><td>PATCH</td><td>/api/contacts/[id]</td><td>직원 정보 수정</td><td>ADMIN</td></tr>
+                    <tr><td>PATCH</td><td>/api/contacts/[id]</td><td>직원 정보 수정 (name 변경 시 User.name 동기화)</td><td>로그인 필요</td></tr>
+                    <tr><td>DELETE</td><td>/api/contacts/[id]</td><td>User 연결 시 User 삭제(cascade), 미연결 시 Employee 직접 삭제</td><td>ADMIN</td></tr>
                 </tbody>
             </table>
 
             <div class="code-block">
                 <div class="code-header">
-                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/contacts/route.ts</div>
+                    <div class="code-label"><span class="lang-badge lang-ts">TS</span>app/api/contacts/[id]/route.ts</div>
                     <button class="copy-btn" onclick="copyCode(this)">복사</button>
                 </div>
-                <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
-<span class="kw">import</span> <span class="op">{</span> db <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/db"</span>
+                <pre><span class="kw">export async function</span> <span class="fn">PATCH</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">Request</span><span class="op">, {</span> params <span class="op">}: {</span> params<span class="op">:</span> <span class="ty">Promise</span><span class="op">&lt;{</span> id<span class="op">:</span> <span class="ty">string</span> <span class="op">}&gt; }) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">if</span> <span class="op">(!</span>session<span class="op">?.user?.id)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Unauthorized"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">401</span> <span class="op">})</span>
 
-<span class="kw">export async function</span> <span class="fn">GET</span><span class="op">() {</span>
-  <span class="kw">const</span> employees <span class="op">=</span> <span class="kw">await</span> db.employee.<span class="fn">findMany</span><span class="op">({</span>
-    include<span class="op">: {</span> user<span class="op">: {</span> select<span class="op">: {</span> email<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> role<span class="op">:</span> <span class="kw">true</span> <span class="op">} } },</span>
-    orderBy<span class="op">: {</span> name<span class="op">:</span> <span class="str">"asc"</span> <span class="op">},</span>
+  <span class="kw">const</span> <span class="op">{</span> id <span class="op">} =</span> <span class="kw">await</span> params
+  <span class="kw">const</span> <span class="op">{</span> name<span class="op">,</span> position<span class="op">,</span> job<span class="op">,</span> email<span class="op">,</span> phone<span class="op">,</span> residence <span class="op">} =</span> <span class="kw">await</span> req.<span class="fn">json</span><span class="op">()</span>
+
+  <span class="kw">const</span> employee <span class="op">=</span> <span class="kw">await</span> prisma.employee.<span class="fn">update</span><span class="op">({</span>
+    where<span class="op">: {</span> id <span class="op">},</span>
+    data<span class="op">: {</span>
+      <span class="op">...(</span>name <span class="op">&amp;&amp; {</span> name <span class="op">}),</span>
+      email<span class="op">:</span> email <span class="op">??</span> <span class="kw">null</span><span class="op">,</span> position<span class="op">:</span> position <span class="op">??</span> <span class="kw">null</span><span class="op">,</span>
+      job<span class="op">:</span> job <span class="op">??</span> <span class="kw">null</span><span class="op">,</span> phone<span class="op">:</span> phone <span class="op">??</span> <span class="kw">null</span><span class="op">,</span> residence<span class="op">:</span> residence <span class="op">??</span> <span class="kw">null</span><span class="op">,</span>
+    <span class="op">},</span>
   <span class="op">})</span>
-  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">(</span>employees<span class="op">)</span>
+
+  <span class="kw">if</span> <span class="op">(</span>name <span class="op">&amp;&amp;</span> employee.userId<span class="op">) {</span>
+    <span class="kw">await</span> prisma.user.<span class="fn">update</span><span class="op">({</span> where<span class="op">: {</span> id<span class="op">:</span> employee.userId <span class="op">},</span> data<span class="op">: {</span> name <span class="op">} })</span>
+  <span class="op">}</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">(</span>employee<span class="op">)</span>
+<span class="op">}</span>
+
+<span class="kw">export async function</span> <span class="fn">DELETE</span><span class="op">(</span>_req<span class="op">:</span> <span class="ty">Request</span><span class="op">, {</span> params <span class="op">}: {</span> params<span class="op">:</span> <span class="ty">Promise</span><span class="op">&lt;{</span> id<span class="op">:</span> <span class="ty">string</span> <span class="op">}&gt; }) {</span>
+  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
+  <span class="kw">if</span> <span class="op">(</span>session<span class="op">?.user?.role !== </span><span class="str">"ADMIN"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.json</span><span class="op">({</span> error<span class="op">:</span> <span class="str">"Forbidden"</span> <span class="op">},</span> <span class="op">{</span> status<span class="op">:</span> <span class="num">403</span> <span class="op">})</span>
+
+  <span class="kw">const</span> <span class="op">{</span> id <span class="op">} =</span> <span class="kw">await</span> params
+  <span class="kw">const</span> employee <span class="op">=</span> <span class="kw">await</span> prisma.employee.<span class="fn">findUnique</span><span class="op">({</span>
+    where<span class="op">: {</span> id <span class="op">},</span> select<span class="op">: {</span> userId<span class="op">:</span> <span class="kw">true</span> <span class="op">},</span>
+  <span class="op">})</span>
+
+  <span class="kw">if</span> <span class="op">(</span>employee<span class="op">?.userId) {</span>
+    <span class="kw">await</span> prisma.user.<span class="fn">delete</span><span class="op">({</span> where<span class="op">: {</span> id<span class="op">:</span> employee.userId <span class="op">} })</span>
+  <span class="op">} else {</span>
+    <span class="kw">await</span> prisma.employee.<span class="fn">delete</span><span class="op">({</span> where<span class="op">: {</span> id <span class="op">} })</span>
+  <span class="op">}</span>
+
+  <span class="kw">return new</span> <span class="ty">NextResponse</span><span class="op">(</span><span class="kw">null</span><span class="op">, {</span> status<span class="op">:</span> <span class="num">204</span> <span class="op">})</span>
 <span class="op">}</span></pre>
             </div>
+
+            <h4>Request / Response 형식</h4>
+            <table>
+                <thead>
+                    <tr><th>방향</th><th>필드</th><th>타입</th><th>비고</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>PATCH Request</td><td>name</td><td><span class="type">string?</span></td><td>변경 시 User.name도 동기화</td></tr>
+                    <tr><td>PATCH Request</td><td>email</td><td><span class="type">string?</span></td><td>없으면 null로 저장</td></tr>
+                    <tr><td>PATCH Request</td><td>position</td><td><span class="type">string?</span></td><td>없으면 null로 저장</td></tr>
+                    <tr><td>PATCH Request</td><td>job</td><td><span class="type">string?</span></td><td>없으면 null로 저장</td></tr>
+                    <tr><td>PATCH Request</td><td>phone</td><td><span class="type">string?</span></td><td>없으면 null로 저장</td></tr>
+                    <tr><td>PATCH Request</td><td>residence</td><td><span class="type">string?</span></td><td>없으면 null로 저장</td></tr>
+                    <tr><td>PATCH Response 200</td><td>employee</td><td><span class="type">Employee</span></td><td>수정된 Employee 전체 객체</td></tr>
+                    <tr><td>PATCH Response 401</td><td>error</td><td><span class="type">string</span></td><td>로그인하지 않은 경우</td></tr>
+                    <tr><td>DELETE Response 204</td><td>—</td><td>—</td><td>본문 없음</td></tr>
+                    <tr><td>DELETE Response 403</td><td>error</td><td><span class="type">string</span></td><td>ADMIN이 아닌 경우</td></tr>
+                </tbody>
+            </table>
         </section>
 
         <section id="db-model">
@@ -130,21 +182,29 @@
                     <button class="copy-btn" onclick="copyCode(this)">복사</button>
                 </div>
                 <pre>model <span class="ty">Employee</span> <span class="op">{</span>
-  id       <span class="ty">String</span>  <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
-  name     <span class="ty">String</span>           <span class="cmt">// 이름</span>
-  phone    <span class="ty">String</span><span class="op">?</span>          <span class="cmt">// 전화번호 (선택)</span>
-  position <span class="ty">String</span>           <span class="cmt">// 직책</span>
-  userId   <span class="ty">String</span>  <span class="op">@</span><span class="fn">unique</span>
-  user     <span class="ty">User</span>    <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>userId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">])</span>
+  id        <span class="ty">String</span>    <span class="op">@</span><span class="fn">id</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">cuid</span><span class="op">())</span>
+  name      <span class="ty">String</span>
+  email     <span class="ty">String</span><span class="op">?</span>
+  phone     <span class="ty">String</span><span class="op">?</span>
+  position  <span class="ty">String</span><span class="op">?</span>
+  job       <span class="ty">String</span><span class="op">?</span>
+  residence <span class="ty">String</span><span class="op">?</span>
+  userId    <span class="ty">String</span><span class="op">?</span>  <span class="op">@</span><span class="fn">unique</span>
+  user      <span class="ty">User</span><span class="op">?</span>   <span class="op">@</span><span class="fn">relation</span><span class="op">(</span>fields<span class="op">: [</span>userId<span class="op">],</span> references<span class="op">: [</span>id<span class="op">],</span> onDelete<span class="op">:</span> <span class="ty">Cascade</span><span class="op">)</span>
+  createdAt <span class="ty">DateTime</span> <span class="op">@</span><span class="fn">default</span><span class="op">(</span><span class="fn">now</span><span class="op">())</span>
+  updatedAt <span class="ty">DateTime</span> <span class="op">@</span><span class="fn">updatedAt</span>
 <span class="op">}</span></pre>
             </div>
             <table>
                 <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
                 <tbody>
                     <tr><td>name</td><td>String</td><td>직원 이름 (필수)</td></tr>
-                    <tr><td>phone</td><td>String?</td><td>전화번호 (선택, null 가능)</td></tr>
-                    <tr><td>position</td><td>String</td><td>직책 (필수)</td></tr>
-                    <tr><td>userId</td><td>String @unique</td><td>User와 1:1 연결</td></tr>
+                    <tr><td>email</td><td>String?</td><td>이메일 (선택)</td></tr>
+                    <tr><td>phone</td><td>String?</td><td>전화번호 (선택)</td></tr>
+                    <tr><td>position</td><td>String?</td><td>직책 (선택)</td></tr>
+                    <tr><td>job</td><td>String?</td><td>업무 (선택)</td></tr>
+                    <tr><td>residence</td><td>String?</td><td>거주지 (선택)</td></tr>
+                    <tr><td>userId</td><td>String? @unique</td><td>User와 1:1 연결 (선택 — User 없는 Employee 가능)</td></tr>
                 </tbody>
             </table>
         </section>
@@ -152,9 +212,11 @@
         <section id="security">
             <h3><span class="section-icon">🔒</span> 보안</h3>
             <ul class="checklist">
-                <li><span class="check">✓</span> PATCH /api/contacts/[id] — ADMIN role 서버 검증</li>
-                <li><span class="check">✓</span> 전화번호는 로그인한 사용자에게만 노출 (proxy.ts 인증 게이트)</li>
-                <li><span class="check">✓</span> 타 사용자 ID로 수정 시도 — 본인 확인 또는 ADMIN 체크</li>
+                <li><span class="check">✓</span> PATCH — 로그인 여부만 검증 (session.user.id 확인), 401 반환</li>
+                <li><span class="check">✓</span> DELETE — ADMIN role 서버 검증 필수, 403 반환</li>
+                <li><span class="check">✓</span> 전화번호·거주지 등 개인정보는 로그인한 사용자에게만 노출 (proxy.ts 인증 게이트)</li>
+                <li><span class="check">✓</span> userId가 있는 Employee 삭제 시 User 삭제 → onDelete: Cascade로 Employee 자동 제거</li>
+                <li><span class="check">✓</span> userId가 없는 Employee는 prisma.employee.delete로 직접 삭제</li>
             </ul>
         </section>
     </div>
