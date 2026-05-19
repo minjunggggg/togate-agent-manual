@@ -191,6 +191,7 @@ nav a .icon {
 }
 
 .chip.ts {
+    white-space: nowrap;
     border-color: rgba(96, 165, 250, .4);
     color: var(--blue);
     background: rgba(96, 165, 250, .07);
