@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 시작하기 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="badge">DEV MANUAL</div>
+            <h1>Togate Docs</h1>
+            <p>개발자 가이드 v1.0</p>
+        </div>
+        <nav>
+            <div class="nav-section">개요</div>
+            <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">운영</div>
+            <a href="getting-started.html" class="page-active"><span class="icon">🚀</span> 시작하기</a>
+            <a href="deploy.html"><span class="icon">🚢</span> 배포 가이드</a>
+            <a href="services.html"><span class="icon">🔗</span> 외부 서비스</a>
+            <a href="troubleshooting.html"><span class="icon">🛠️</span> 트러블슈팅</a>
+            <div class="nav-section">인증</div>
+            <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+            <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+            <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+            <div class="nav-section">콘텐츠</div>
+            <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+            <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+            <div class="nav-section">일정</div>
+            <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+            <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+            <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+            <div class="nav-section">AI</div>
+            <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+            <div class="nav-section">알림</div>
+            <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+            <div class="nav-section">이 페이지</div>
+            <a href="#prerequisites" class="active"><span class="icon">📋</span> 사전 준비</a>
+            <a href="#clone"><span class="icon">📥</span> 클론 & 설치</a>
+            <a href="#env"><span class="icon">⚙️</span> 환경변수 설정</a>
+            <a href="#db"><span class="icon">🗄️</span> DB 초기화</a>
+            <a href="#run"><span class="icon">▶️</span> 개발 서버 실행</a>
+            <a href="#branch"><span class="icon">🌿</span> 브랜치 전략</a>
+            <a href="#checklist"><span class="icon">☑️</span> 온보딩 체크리스트</a>
+        </nav>
+        <div class="sidebar-footer">
+            Next.js 16 · TypeScript · App Router
+        </div>
+    </aside>
+
+    <div id="main">
+        <div class="topbar">
+            <div class="topbar-breadcrumb">
+                Docs <span style="color:var(--text-dim)">›</span> 운영 <span style="color:var(--text-dim)">›</span>
+                <span>시작하기</span>
+            </div>
+            <div class="topbar-right">
+                <span class="chip next">⬡ Next.js 16</span>
+                <span class="chip ts">TS TypeScript</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-header">
+                <h2>시작하기</h2>
+                <p>처음 프로젝트를 인계받은 개발자가 로컬 환경을 세팅하고 개발 서버를 실행하기까지의 전 과정을 설명합니다.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+            </div>
+
+            <!-- 사전 준비 -->
+            <section id="prerequisites">
+                <h3><span class="section-icon">📋</span> 사전 준비</h3>
+                <p>개발을 시작하기 전에 아래 도구가 설치되어 있어야 합니다.</p>
+
+                <table>
+                    <thead><tr><th>도구</th><th>권장 버전</th><th>확인 명령어</th><th>비고</th></tr></thead>
+                    <tbody>
+                        <tr><td>Node.js</td><td>v20 LTS 이상</td><td><code>node -v</code></td><td>v18 미만은 동작 보장 불가</td></tr>
+                        <tr><td>npm</td><td>v10 이상</td><td><code>npm -v</code></td><td>Node.js 설치 시 자동 포함</td></tr>
+                        <tr><td>Git</td><td>최신</td><td><code>git --version</code></td><td></td></tr>
+                        <tr><td>PostgreSQL</td><td>v15 이상 (로컬) 또는 Neon/Supabase</td><td><code>psql --version</code></td><td>로컬 DB 없으면 Neon 무료 플랜 사용 권장</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>Node.js 버전 관리:</strong> <code>nvm</code> (Mac/Linux) 또는 <code>fnm</code> (Windows/Mac/Linux)을 사용해 Node 버전을 관리하면 버전 충돌을 방지할 수 있습니다. <code>nvm use 20</code>으로 프로젝트 버전으로 전환하세요.</p>
+                </div>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>외부 서비스 API 키 발급 필요:</strong> Deepgram, Gemini, VAPID 키 등이 없으면 AI 회의록 및 웹 푸시 기능은 동작하지 않습니다. <a href="services.html" style="color:var(--primary-light)">외부 서비스 가이드</a>를 먼저 확인하세요.</p>
+                </div>
+            </section>
+
+            <!-- 클론 & 설치 -->
+            <section id="clone">
+                <h3><span class="section-icon">📥</span> 클론 & 설치</h3>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>1. 레포지토리 클론</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># GitHub 레포지토리 클론</span>
+<span class="fn">git</span> clone https://github.com/투게이트컴즈/togate-agent.git
+<span class="fn">cd</span> togate-agent
+
+<span class="cmt"># 현재 브랜치 확인</span>
+<span class="fn">git</span> branch -a</pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>2. 의존성 설치</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="fn">npm</span> install</pre>
+                </div>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong><code>npm ci</code> 권장:</strong> 팀 환경에서는 <code>npm install</code> 대신 <code>npm ci</code>를 사용하면 <code>package-lock.json</code>을 기준으로 정확한 버전이 설치됩니다.</p>
+                </div>
+            </section>
+
+            <!-- 환경변수 설정 -->
+            <section id="env">
+                <h3><span class="section-icon">⚙️</span> 환경변수 설정</h3>
+                <p>프로젝트 루트에 <code style="color:var(--blue);font-family:var(--font-mono)">.env.local</code> 파일을 생성합니다. 실제 키 값은 <a href="services.html" style="color:var(--primary-light)">외부 서비스 담당자</a>에게 전달받으세요.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>.env.local 파일 생성</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 예시 파일 복사 후 값 채우기</span>
+<span class="fn">cp</span> .env.example .env.local</pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-env">ENV</span>.env.local — 전체 템플릿</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># ── Auth.js ──────────────────────────────────────────</span>
+<span class="str">AUTH_SECRET</span>=<span class="cmt">           # openssl rand -base64 33 으로 생성</span>
+<span class="str">AUTH_URL</span>=<span class="str">http://localhost:3000</span>   <span class="cmt"># 로컬 개발 시에만 설정</span>
+<span class="str">AUTH_TRUST_HOST</span>=<span class="str">true</span>
+
+<span class="cmt"># ── Database ─────────────────────────────────────────</span>
+<span class="str">DATABASE_URL</span>=<span class="str">postgresql://USER:PASSWORD@HOST:5432/togate</span>
+
+<span class="cmt"># ── AI (gemini | openai) ─────────────────────────────</span>
+<span class="str">AI_PROVIDER</span>=<span class="str">gemini</span>
+<span class="str">GEMINI_API_KEY</span>=
+<span class="str">OPENAI_API_KEY</span>=           <span class="cmt"># AI_PROVIDER=openai 시에만 필요</span>
+
+<span class="cmt"># ── 음성 전사 (Deepgram) ────────────────────────────</span>
+<span class="str">DEEPGRAM_API_KEY</span>=
+<span class="str">DEEPGRAM_PROJECT_ID</span>=
+
+<span class="cmt"># ── 웹 푸시 VAPID ────────────────────────────────────</span>
+<span class="cmt"># npx web-push generate-vapid-keys 로 생성</span>
+<span class="str">NEXT_PUBLIC_VAPID_PUBLIC_KEY</span>=
+<span class="str">VAPID_PRIVATE_KEY</span>=
+<span class="str">VAPID_MAILTO</span>=<span class="str">mailto:admin@togate.com</span>
+
+<span class="cmt"># ── Cron ─────────────────────────────────────────────</span>
+<span class="str">CRON_SECRET</span>=             <span class="cmt"># 로컬에서는 임의 문자열로 설정</span></pre>
+                </div>
+
+                <h4>필수 키 빠른 생성</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>AUTH_SECRET 및 VAPID 키 생성</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># AUTH_SECRET 생성</span>
+<span class="fn">openssl</span> rand -base64 33
+
+<span class="cmt"># VAPID 키 쌍 생성 (public + private)</span>
+<span class="fn">npx</span> web-push generate-vapid-keys</pre>
+                </div>
+
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong><code>.env.local</code>은 절대 Git에 커밋하지 마세요.</strong> <code>.gitignore</code>에 이미 포함되어 있으나, 팀 내 키 공유는 반드시 별도 보안 채널(1Password, Notion 비공개 페이지 등)을 이용하세요.</p>
+                </div>
+            </section>
+
+            <!-- DB 초기화 -->
+            <section id="db">
+                <h3><span class="section-icon">🗄️</span> DB 초기화</h3>
+                <p>로컬 PostgreSQL 또는 Neon 인스턴스에 스키마를 적용하고 초기 ADMIN 계정을 생성합니다.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>DB 마이그레이션 & 시드</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 1. 스키마 마이그레이션 적용</span>
+<span class="fn">npm</span> run db:migrate
+
+<span class="cmt"># 2. 초기 ADMIN 계정 생성</span>
+<span class="fn">npm</span> run db:seed
+<span class="cmt">#    → admin@togate.com / admin1234! 로 생성됨</span>
+<span class="cmt">#    → 첫 로그인 시 비밀번호 변경 강제됨</span>
+
+<span class="cmt"># 3. (선택) Prisma Studio로 DB 확인</span>
+<span class="fn">npm</span> run db:studio</pre>
+                </div>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>운영 DB에 <code>db:migrate</code> 실행 금지:</strong> 운영 환경에서는 <code>prisma migrate dev</code> 대신 <code>prisma migrate deploy</code>를 사용합니다. <code>migrate dev</code>는 개발 전용이며 운영 데이터에 영향을 줄 수 있습니다.</p>
+                </div>
+
+                <table>
+                    <thead><tr><th>명령어</th><th>환경</th><th>설명</th></tr></thead>
+                    <tbody>
+                        <tr><td>npm run db:migrate</td><td>개발 전용</td><td><code>prisma migrate dev</code> — 마이그레이션 파일 생성 + 적용</td></tr>
+                        <tr><td>prisma migrate deploy</td><td>운영/스테이징</td><td>기존 마이그레이션 파일만 순서대로 적용 (안전)</td></tr>
+                        <tr><td>npm run db:seed</td><td>최초 1회</td><td>초기 ADMIN 계정 <code>admin@togate.com</code> 생성</td></tr>
+                        <tr><td>npm run db:studio</td><td>개발 전용</td><td>Prisma Studio (DB GUI) — localhost:5555</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 개발 서버 실행 -->
+            <section id="run">
+                <h3><span class="section-icon">▶️</span> 개발 서버 실행</h3>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>개발 서버 시작</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="fn">npm</span> run dev
+<span class="cmt"># → http://localhost:3000 에서 확인</span>
+<span class="cmt"># → webpack 빌더 사용 (next dev --webpack)</span></pre>
+                </div>
+
+                <div class="flow">
+                    <div class="flow-step"><div class="step-label">1단계</div><div class="step-name">git clone</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">2단계</div><div class="step-name">npm install</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">3단계</div><div class="step-name">.env.local 설정</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">4단계</div><div class="step-name">db:migrate + seed</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">5단계</div><div class="step-name">npm run dev</div></div>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>빌드 확인:</strong> 개발 서버 대신 프로덕션 빌드를 로컬에서 확인하려면 <code>npm run build && npm start</code>를 실행합니다. Prisma 클라이언트가 자동으로 재생성됩니다.</p>
+                </div>
+            </section>
+
+            <!-- 브랜치 전략 -->
+            <section id="branch">
+                <h3><span class="section-icon">🌿</span> 브랜치 전략</h3>
+
+                <table>
+                    <thead><tr><th>브랜치</th><th>역할</th><th>Vercel 연결</th><th>규칙</th></tr></thead>
+                    <tbody>
+                        <tr><td>main</td><td>운영 배포 브랜치</td><td>Production</td><td>직접 push 금지 — PR 병합만 허용</td></tr>
+                        <tr><td>develop</td><td>개발 통합 브랜치</td><td>Preview</td><td>기능 개발 완료 후 PR → develop</td></tr>
+                        <tr><td>feature/기능명</td><td>기능 개발</td><td>Preview (자동)</td><td><code>feature/add-push-notification</code> 형식</td></tr>
+                        <tr><td>fix/이슈명</td><td>버그 수정</td><td>Preview (자동)</td><td><code>fix/leave-count-error</code> 형식</td></tr>
+                        <tr><td>hotfix/이슈명</td><td>운영 긴급 수정</td><td>—</td><td>main에서 분기 → main으로 직접 PR</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>일반 기능 개발 흐름</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># develop 기반으로 feature 브랜치 생성</span>
+<span class="fn">git</span> checkout develop
+<span class="fn">git</span> pull origin develop
+<span class="fn">git</span> checkout -b feature/add-notice-pin
+
+<span class="cmt"># 작업 후 커밋 & 푸시</span>
+<span class="fn">git</span> add .
+<span class="fn">git</span> commit -m <span class="str">"feat: 공지사항 상단 고정 기능 추가"</span>
+<span class="fn">git</span> push origin feature/add-notice-pin
+
+<span class="cmt"># GitHub에서 develop으로 PR 생성</span></pre>
+                </div>
+
+                <h4>커밋 메시지 컨벤션</h4>
+                <table>
+                    <thead><tr><th>prefix</th><th>사용 상황</th></tr></thead>
+                    <tbody>
+                        <tr><td>feat:</td><td>새 기능 추가</td></tr>
+                        <tr><td>fix:</td><td>버그 수정</td></tr>
+                        <tr><td>refactor:</td><td>기능 변경 없는 코드 구조 개선</td></tr>
+                        <tr><td>style:</td><td>UI/CSS 변경</td></tr>
+                        <tr><td>docs:</td><td>문서 수정</td></tr>
+                        <tr><td>chore:</td><td>설정 파일, 패키지 업데이트 등</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 온보딩 체크리스트 -->
+            <section id="checklist">
+                <h3><span class="section-icon">☑️</span> 온보딩 체크리스트</h3>
+
+                <div class="info-box success">
+                    <span class="icon">✅</span>
+                    <p>아래 항목을 모두 완료하면 개발 준비가 끝납니다.</p>
+                </div>
+
+                <h4>환경 설정</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> Node.js v20 이상 설치 확인 (<code>node -v</code>)</li>
+                    <li><span class="check">✓</span> 레포지토리 클론 완료</li>
+                    <li><span class="check">✓</span> <code>npm install</code> 완료 (오류 없음)</li>
+                    <li><span class="check">✓</span> <code>.env.local</code> 파일 생성 및 모든 필수 키 입력</li>
+                    <li><span class="check">✓</span> <code>npm run db:migrate</code> 완료 (마이그레이션 오류 없음)</li>
+                    <li><span class="check">✓</span> <code>npm run db:seed</code> 완료 (admin 계정 생성)</li>
+                    <li><span class="check">✓</span> <code>npm run dev</code> 실행 후 <code>localhost:3000</code> 접속 확인</li>
+                </ul>
+
+                <h4>기능 동작 확인</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> <code>admin@togate.com</code> 로그인 → 비밀번호 변경 강제 이동 확인</li>
+                    <li><span class="check">✓</span> 공지사항 작성 → 푸시 알림 발송 확인</li>
+                    <li><span class="check">✓</span> AI 회의록 — 음성 녹음 → 전사 결과 확인 (Deepgram 키 필요)</li>
+                    <li><span class="check">✓</span> 연차 신청 → ADMIN 승인 플로우 확인</li>
+                </ul>
+
+                <h4>접근 권한 확인</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> GitHub 레포지토리 접근 권한 부여받음</li>
+                    <li><span class="check">✓</span> Vercel 프로젝트 팀 초대 수락 (<a href="services.html" style="color:var(--primary-light)">외부 서비스 가이드 참고</a>)</li>
+                    <li><span class="check">✓</span> 외부 서비스 API 키 전달받음 (Deepgram, Gemini, VAPID)</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const pre = btn.closest('.code-block').querySelector('pre');
+            navigator.clipboard.writeText(pre.innerText).then(() => {
+                btn.textContent = '✓ 복사됨';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 배포 가이드 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="badge">DEV MANUAL</div>
+            <h1>Togate Docs</h1>
+            <p>개발자 가이드 v1.0</p>
+        </div>
+        <nav>
+            <div class="nav-section">개요</div>
+            <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">운영</div>
+            <a href="getting-started.html"><span class="icon">🚀</span> 시작하기</a>
+            <a href="deploy.html" class="page-active"><span class="icon">🚢</span> 배포 가이드</a>
+            <a href="services.html"><span class="icon">🔗</span> 외부 서비스</a>
+            <a href="troubleshooting.html"><span class="icon">🛠️</span> 트러블슈팅</a>
+            <div class="nav-section">인증</div>
+            <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+            <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+            <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+            <div class="nav-section">콘텐츠</div>
+            <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+            <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+            <div class="nav-section">일정</div>
+            <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+            <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+            <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+            <div class="nav-section">AI</div>
+            <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+            <div class="nav-section">알림</div>
+            <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+            <div class="nav-section">이 페이지</div>
+            <a href="#vercel" class="active"><span class="icon">🌐</span> Vercel 배포</a>
+            <a href="#env-vercel"><span class="icon">⚙️</span> 환경변수 설정</a>
+            <a href="#db-deploy"><span class="icon">🗄️</span> DB 마이그레이션</a>
+            <a href="#rollback"><span class="icon">↩️</span> 롤백</a>
+            <a href="#ios"><span class="icon">📱</span> iOS 빌드</a>
+            <a href="#checklist"><span class="icon">☑️</span> 배포 체크리스트</a>
+        </nav>
+        <div class="sidebar-footer">
+            Next.js 16 · TypeScript · App Router
+        </div>
+    </aside>
+
+    <div id="main">
+        <div class="topbar">
+            <div class="topbar-breadcrumb">
+                Docs <span style="color:var(--text-dim)">›</span> 운영 <span style="color:var(--text-dim)">›</span>
+                <span>배포 가이드</span>
+            </div>
+            <div class="topbar-right">
+                <span class="chip next">⬡ Next.js 16</span>
+                <span class="chip ts">TS TypeScript</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-header">
+                <h2>배포 가이드</h2>
+                <p>Vercel을 통한 웹 배포와 Capacitor를 통한 iOS 앱 빌드 · 배포 절차를 설명합니다.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+            </div>
+
+            <!-- Vercel 배포 -->
+            <section id="vercel">
+                <h3><span class="section-icon">🌐</span> Vercel 배포</h3>
+                <p>Togate-agent는 Vercel에 연결된 GitHub 레포지토리를 통해 자동 배포됩니다. 코드를 푸시하면 별도 작업 없이 배포가 트리거됩니다.</p>
+
+                <table>
+                    <thead><tr><th>브랜치</th><th>Vercel 환경</th><th>URL</th><th>용도</th></tr></thead>
+                    <tbody>
+                        <tr><td>main</td><td>Production</td><td>togate-agent.vercel.app (또는 커스텀 도메인)</td><td>실 서비스 배포</td></tr>
+                        <tr><td>develop</td><td>Preview</td><td>togate-agent-git-develop-xxx.vercel.app</td><td>QA / 스테이징</td></tr>
+                        <tr><td>feature/* , fix/*</td><td>Preview</td><td>PR별 고유 URL 자동 생성</td><td>PR 단위 리뷰</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>배포 흐름</h4>
+                <div class="flow">
+                    <div class="flow-step"><div class="step-label">개발자</div><div class="step-name">PR 생성</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">Vercel</div><div class="step-name">Preview 빌드</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">리뷰어</div><div class="step-name">Preview URL 확인</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">병합</div><div class="step-name">main 머지</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">Vercel</div><div class="step-name">Production 배포</div></div>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>빌드 로그 확인:</strong> Vercel 대시보드 → 해당 Deployment → <strong>Build Logs</strong> 탭에서 실시간 로그를 확인할 수 있습니다. 빌드 실패 원인은 여기서 가장 먼저 확인하세요.</p>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>Vercel 프로젝트 접근:</strong> <a href="https://vercel.com" target="_blank" style="color:var(--primary-light)">vercel.com</a> → 투게이트컴즈 팀 → <strong>togate-agent</strong> 프로젝트. 접근 권한이 없으면 <a href="services.html" style="color:var(--primary-light)">외부 서비스 가이드</a>의 담당자에게 초대 요청하세요.</p>
+                </div>
+            </section>
+
+            <!-- Vercel 환경변수 -->
+            <section id="env-vercel">
+                <h3><span class="section-icon">⚙️</span> Vercel 환경변수 설정</h3>
+                <p>Vercel 대시보드에서 환경변수를 설정합니다. <strong>로컬의 <code>.env.local</code>은 Vercel에 자동 반영되지 않습니다.</strong></p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>Vercel CLI로 환경변수 추가 (선택)</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># Vercel CLI 설치</span>
+<span class="fn">npm</span> install -g vercel
+
+<span class="cmt"># 로그인 후 프로젝트 연결</span>
+<span class="fn">vercel</span> login
+<span class="fn">vercel</span> link
+
+<span class="cmt"># 환경변수 추가 (Production)</span>
+<span class="fn">vercel</span> env add AUTH_SECRET production
+<span class="fn">vercel</span> env add DATABASE_URL production</pre>
+                </div>
+
+                <table>
+                    <thead><tr><th>변수명</th><th>설정 환경</th><th>비고</th></tr></thead>
+                    <tbody>
+                        <tr><td>AUTH_SECRET</td><td>Production + Preview</td><td>로컬과 다른 값 사용 권장</td></tr>
+                        <tr><td>AUTH_TRUST_HOST</td><td>Production + Preview</td><td>반드시 <code>true</code></td></tr>
+                        <tr><td>DATABASE_URL</td><td>Production + Preview</td><td>Preview는 별도 DB 권장</td></tr>
+                        <tr><td>GEMINI_API_KEY</td><td>Production + Preview</td><td></td></tr>
+                        <tr><td>DEEPGRAM_API_KEY</td><td>Production + Preview</td><td></td></tr>
+                        <tr><td>DEEPGRAM_PROJECT_ID</td><td>Production + Preview</td><td></td></tr>
+                        <tr><td>NEXT_PUBLIC_VAPID_PUBLIC_KEY</td><td>Production + Preview</td><td></td></tr>
+                        <tr><td>VAPID_PRIVATE_KEY</td><td>Production + Preview</td><td></td></tr>
+                        <tr><td>VAPID_MAILTO</td><td>Production + Preview</td><td></td></tr>
+                        <tr><td>CRON_SECRET</td><td>Production만</td><td>Preview에서 Cron 불필요</td></tr>
+                        <tr><td>AUTH_URL</td><td>설정하지 않음</td><td>Vercel에서 자동 주입. 직접 설정 시 Preview URL 충돌</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>AUTH_URL은 Vercel에 절대 설정하지 마세요.</strong> Preview 배포마다 URL이 달라지는데 AUTH_URL이 고정되면 OAuth 콜백 URL이 깨집니다. <code>AUTH_TRUST_HOST=true</code>만으로 충분합니다.</p>
+                </div>
+            </section>
+
+            <!-- DB 마이그레이션 (운영) -->
+            <section id="db-deploy">
+                <h3><span class="section-icon">🗄️</span> 운영 DB 마이그레이션</h3>
+                <p>스키마 변경이 포함된 배포 시 반드시 DB 마이그레이션을 먼저 진행합니다.</p>
+
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>순서를 반드시 지키세요.</strong> 앱 배포 전에 마이그레이션을 먼저 완료해야 합니다. 앱이 먼저 배포되면 새 코드가 구 스키마를 참조해 런타임 에러가 발생합니다.</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>운영 DB 마이그레이션 (prisma migrate deploy)</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 운영 DATABASE_URL을 환경변수로 설정 후 실행</span>
+<span class="str">DATABASE_URL</span>=<span class="str">"postgresql://..."</span> <span class="fn">npx</span> prisma migrate deploy
+
+<span class="cmt"># 또는 .env.production 파일 사용</span>
+<span class="fn">npx</span> dotenv -e .env.production -- prisma migrate deploy</pre>
+                </div>
+
+                <table>
+                    <thead><tr><th>순서</th><th>작업</th><th>담당</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>스키마 변경사항 PR 리뷰</td><td>개발자</td></tr>
+                        <tr><td>2</td><td><code>prisma migrate deploy</code> 운영 DB 적용</td><td>개발자</td></tr>
+                        <tr><td>3</td><td>마이그레이션 결과 확인 (Prisma Studio 또는 psql)</td><td>개발자</td></tr>
+                        <tr><td>4</td><td>main 브랜치 병합 → Vercel Production 배포</td><td>개발자</td></tr>
+                        <tr><td>5</td><td>운영 서비스 동작 확인</td><td>개발자 + 담당자</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 롤백 -->
+            <section id="rollback">
+                <h3><span class="section-icon">↩️</span> 롤백</h3>
+
+                <h4>웹 앱 롤백 (Vercel)</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>Vercel CLI 롤백</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 특정 deployment로 롤백</span>
+<span class="fn">vercel</span> rollback [deployment-url]
+
+<span class="cmt"># 또는 Vercel 대시보드 → Deployments → 이전 배포 → "Promote to Production"</span></pre>
+                </div>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>DB 롤백 주의:</strong> DB 마이그레이션은 자동 롤백되지 않습니다. 컬럼 추가와 같이 하위 호환되는 변경은 앱만 롤백해도 무방하지만, 컬럼 삭제·타입 변경이 포함된 경우 DBA와 협의 후 수동 롤백이 필요합니다.</p>
+                </div>
+            </section>
+
+            <!-- iOS 빌드 -->
+            <section id="ios">
+                <h3><span class="section-icon">📱</span> iOS 빌드 (Capacitor)</h3>
+                <p>Capacitor 8을 통해 Next.js 앱을 iOS 네이티브 앱으로 래핑합니다. App Store 배포를 위해 Mac + Xcode 환경이 필요합니다.</p>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>사전 요구사항:</strong> macOS + Xcode 15 이상 + Apple Developer 계정 (유료, 연 $99) 이 필요합니다. Windows 환경에서는 iOS 빌드가 불가합니다.</p>
+                </div>
+
+                <h4>최초 iOS 프로젝트 세팅</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>Capacitor iOS 초기 세팅</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 1. Next.js 정적 빌드</span>
+<span class="fn">npm</span> run build
+
+<span class="cmt"># 2. Capacitor에 웹 에셋 동기화</span>
+<span class="fn">npx</span> cap sync ios
+
+<span class="cmt"># 3. Xcode로 iOS 프로젝트 열기</span>
+<span class="fn">npx</span> cap open ios</pre>
+                </div>
+
+                <h4>기능 수정 후 iOS 앱 업데이트</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>웹 코드 변경 → iOS 반영</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 1. 웹 빌드</span>
+<span class="fn">npm</span> run build
+
+<span class="cmt"># 2. iOS에 동기화 (네이티브 플러그인 설치도 포함)</span>
+<span class="fn">npx</span> cap sync ios
+
+<span class="cmt"># 3. Xcode에서 빌드 및 시뮬레이터/실기기 실행</span>
+<span class="fn">npx</span> cap open ios
+<span class="cmt"># → Xcode: Product → Run (⌘R)</span></pre>
+                </div>
+
+                <h4>App Store 배포 순서</h4>
+                <table>
+                    <thead><tr><th>순서</th><th>작업</th><th>위치</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td><code>npm run build && npx cap sync ios</code></td><td>터미널</td></tr>
+                        <tr><td>2</td><td>Xcode에서 <code>ios/App/App.xcworkspace</code> 열기</td><td>Xcode</td></tr>
+                        <tr><td>3</td><td>버전·빌드 번호 올리기 (Info.plist 또는 TARGETS → General)</td><td>Xcode</td></tr>
+                        <tr><td>4</td><td>Signing & Capabilities — 팀·프로비저닝 프로파일 확인</td><td>Xcode</td></tr>
+                        <tr><td>5</td><td>Product → Archive → Distribute App → App Store Connect</td><td>Xcode</td></tr>
+                        <tr><td>6</td><td>App Store Connect에서 심사 제출</td><td>appstoreconnect.apple.com</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>인증서 & 프로비저닝 프로파일:</strong> Xcode의 <strong>자동 서명(Automatically manage signing)</strong>을 활성화하면 Apple Developer 계정으로 자동 관리됩니다. 계정 접근은 <a href="services.html" style="color:var(--primary-light)">외부 서비스 가이드</a>의 담당자에게 문의하세요.</p>
+                </div>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>PWA와 iOS 앱의 차이:</strong> 웹 푸시 알림(<code>web-push</code> + Service Worker)은 iOS Safari PWA에서 동작하지만, Capacitor 래핑 앱에서는 별도 네이티브 푸시 설정이 필요할 수 있습니다. 기능 수정 시 반드시 실기기 테스트를 진행하세요.</p>
+                </div>
+            </section>
+
+            <!-- 배포 체크리스트 -->
+            <section id="checklist">
+                <h3><span class="section-icon">☑️</span> 배포 체크리스트</h3>
+
+                <h4>웹(Vercel) 배포 전</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> Vercel Production 환경변수 모두 설정 확인</li>
+                    <li><span class="check">✓</span> 스키마 변경이 있으면 <code>prisma migrate deploy</code> 먼저 실행</li>
+                    <li><span class="check">✓</span> Preview URL에서 주요 기능 동작 확인 완료</li>
+                    <li><span class="check">✓</span> <code>npm run build</code> 로컬 빌드 오류 없음</li>
+                    <li><span class="check">✓</span> Cron Job 경로 및 <code>CRON_SECRET</code> 설정 확인</li>
+                </ul>
+
+                <h4>iOS 배포 전</h4>
+                <ul class="checklist">
+                    <li><span class="check">✓</span> <code>npm run build && npx cap sync ios</code> 완료</li>
+                    <li><span class="check">✓</span> 버전 번호 및 빌드 번호 업데이트</li>
+                    <li><span class="check">✓</span> 실기기(iPhone) 테스트 완료</li>
+                    <li><span class="check">✓</span> 인증서·프로비저닝 프로파일 유효 기간 확인</li>
+                    <li><span class="check">✓</span> App Store Connect 앱 정보·스크린샷 업데이트</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const pre = btn.closest('.code-block').querySelector('pre');
+            navigator.clipboard.writeText(pre.innerText).then(() => {
+                btn.textContent = '✓ 복사됨';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

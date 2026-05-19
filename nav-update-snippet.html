@@ -1,0 +1,33 @@
+<!--
+  ════════════════════════════════════════════════════════════════
+  📌 기존 페이지 사이드바 nav 업데이트 안내
+  ════════════════════════════════════════════════════════════════
+
+  모든 기존 HTML 파일 (index.html, login.html, signup.html,
+  settings.html, notice.html, contacts.html, calendar.html,
+  schedule.html, admin-leave.html, meeting.html, notification.html)의
+
+  <nav> 태그 안에서 아래 부분을:
+
+      <div class="nav-section">개요</div>
+      <a href="index.html">...프로젝트 개요</a>
+
+  다음과 같이 교체하세요:
+
+  ────────────────────────────────────────────────────────────────
+-->
+
+<div class="nav-section">개요</div>
+<a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+
+<!-- ✅ 아래 블록을 추가하세요 -->
+<div class="nav-section">운영</div>
+<a href="getting-started.html"><span class="icon">🚀</span> 시작하기</a>
+<a href="deploy.html"><span class="icon">🚢</span> 배포 가이드</a>
+<a href="services.html"><span class="icon">🔗</span> 외부 서비스</a>
+<a href="troubleshooting.html"><span class="icon">🛠️</span> 트러블슈팅</a>
+<!-- ✅ 여기까지 -->
+
+<div class="nav-section">인증</div>
+<a href="login.html"><span class="icon">🔑</span> 로그인</a>
+<!-- ... 이하 기존 nav 그대로 유지 ... -->

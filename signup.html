@@ -20,6 +20,11 @@
         <nav>
             <div class="nav-section">개요</div>
             <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">운영</div>
+            <a href="getting-started.html"><span class="icon">🚀</span> 시작하기</a>
+            <a href="deploy.html"><span class="icon">🚢</span> 배포 가이드</a>
+            <a href="services.html"><span class="icon">🔗</span> 외부 서비스</a>
+            <a href="troubleshooting.html"><span class="icon">🛠️</span> 트러블슈팅</a>
             <div class="nav-section">인증</div>
             <a href="login.html"><span class="icon">🔑</span> 로그인</a>
             <a href="signup.html" class="page-active"><span class="icon">👤</span> 사용자 등록</a>
@@ -107,15 +112,16 @@
 
                 <div class="file-tree">
                     <div><span class="dir">src/app/</span></div>
-                    <div class="indent"><span class="dir">users/</span></div>
-                    <div class="indent indent"><span class="file">page.tsx</span> <span class="comment">← 사용자 목록 (ADMIN)</span></div>
-                    <div class="indent indent"><span class="dir">new/</span></div>
-                    <div class="indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 계정 정보 입력 (이메일·비밀번호·role)</span></div>
-                    <div class="indent indent indent"><span class="dir">profile/</span></div>
-                    <div class="indent indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 직원 프로필 입력 (이름·전화·직책)</span></div>
-                    <div class="indent"><span class="dir">settings/</span></div>
-                    <div class="indent indent"><span class="dir">password/</span></div>
-                    <div class="indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 초기 비밀번호 변경 페이지</span></div>
+                    <div class="indent"><span class="dir">(app)/</span></div>
+                    <div class="indent indent"><span class="dir">users/</span></div>
+                    <div class="indent indent indent"><span class="file">page.tsx</span> <span class="comment">← 사용자 목록 (ADMIN)</span></div>
+                    <div class="indent indent indent"><span class="dir">new/</span></div>
+                    <div class="indent indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 계정 정보 입력 (이메일·비밀번호·role)</span></div>
+                    <div class="indent indent indent indent"><span class="dir">profile/</span></div>
+                    <div class="indent indent indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 직원 프로필 입력 (이름·전화·직책)</span></div>
+                    <div class="indent indent"><span class="dir">settings/</span></div>
+                    <div class="indent indent indent"><span class="dir">password/</span></div>
+                    <div class="indent indent indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 초기 비밀번호 변경 페이지</span></div>
                     <br>
                     <div><span class="dir">src/app/api/</span></div>
                     <div class="indent"><span class="file focus">users/route.ts</span> <span class="comment">← POST: 사용자 + 직원 생성</span></div>
@@ -136,7 +142,7 @@
                 <h4>/users/new/page.tsx — 계정 생성 1단계</h4>
                 <div class="code-block">
                     <div class="code-header">
-                        <div class="code-label"><span class="lang-badge lang-tsx">TSX</span>app/users/new/page.tsx</div>
+                        <div class="code-label"><span class="lang-badge lang-tsx">TSX</span>app/(app)/users/new/page.tsx</div>
                         <button class="copy-btn" onclick="copyCode(this)">복사</button>
                     </div>
                     <pre><span class="str">"use client"</span>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 외부 서비스 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="badge">DEV MANUAL</div>
+            <h1>Togate Docs</h1>
+            <p>개발자 가이드 v1.0</p>
+        </div>
+        <nav>
+            <div class="nav-section">개요</div>
+            <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">운영</div>
+            <a href="getting-started.html"><span class="icon">🚀</span> 시작하기</a>
+            <a href="deploy.html"><span class="icon">🚢</span> 배포 가이드</a>
+            <a href="services.html" class="page-active"><span class="icon">🔗</span> 외부 서비스</a>
+            <a href="troubleshooting.html"><span class="icon">🛠️</span> 트러블슈팅</a>
+            <div class="nav-section">인증</div>
+            <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+            <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+            <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+            <div class="nav-section">콘텐츠</div>
+            <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+            <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+            <div class="nav-section">일정</div>
+            <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+            <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+            <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+            <div class="nav-section">AI</div>
+            <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+            <div class="nav-section">알림</div>
+            <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+            <div class="nav-section">이 페이지</div>
+            <a href="#overview" class="active"><span class="icon">📋</span> 서비스 현황</a>
+            <a href="#vercel"><span class="icon">🌐</span> Vercel</a>
+            <a href="#database"><span class="icon">🗄️</span> Database</a>
+            <a href="#gemini"><span class="icon">🤖</span> Gemini AI</a>
+            <a href="#deepgram"><span class="icon">🎙️</span> Deepgram</a>
+            <a href="#openai"><span class="icon">🧠</span> OpenAI</a>
+            <a href="#vapid"><span class="icon">🔔</span> 웹 푸시 VAPID</a>
+            <a href="#apple"><span class="icon">📱</span> Apple Developer</a>
+            <a href="#limits"><span class="icon">⚡</span> 사용량 & 한도</a>
+        </nav>
+        <div class="sidebar-footer">
+            Next.js 16 · TypeScript · App Router
+        </div>
+    </aside>
+
+    <div id="main">
+        <div class="topbar">
+            <div class="topbar-breadcrumb">
+                Docs <span style="color:var(--text-dim)">›</span> 운영 <span style="color:var(--text-dim)">›</span>
+                <span>외부 서비스</span>
+            </div>
+            <div class="topbar-right">
+                <span class="chip next">⬡ Next.js 16</span>
+                <span class="chip ts">TS TypeScript</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-header">
+                <h2>외부 서비스</h2>
+                <p>프로젝트에서 사용하는 외부 서비스의 계정 현황, 담당자, 요금제 및 키 발급 방법을 정리합니다.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+            </div>
+
+            <div class="info-box danger">
+                <span class="icon">🚨</span>
+                <p><strong>이 문서에 실제 API 키나 비밀번호를 기록하지 마세요.</strong> 실제 키 값은 팀 내 보안 채널(1Password, Notion 비공개 페이지, 내부 Wiki 등)에 별도 보관하고, 이 문서에는 계정 정보와 담당자만 기록합니다.</p>
+            </div>
+
+            <!-- 서비스 현황 요약 -->
+            <section id="overview">
+                <h3><span class="section-icon">📋</span> 서비스 현황 요약</h3>
+
+                <table>
+                    <thead><tr><th>서비스</th><th>용도</th><th>계정 이메일</th><th>담당자</th><th>요금제</th></tr></thead>
+                    <tbody>
+                        <tr><td>Vercel</td><td>웹 호스팅·배포</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>PostgreSQL (DB)</td><td>메인 데이터베이스</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>Google AI (Gemini)</td><td>AI 회의록 요약·전사</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>Deepgram</td><td>음성 → 텍스트 전사</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>OpenAI</td><td>AI 대안 (선택)</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>Apple Developer</td><td>iOS 앱 배포</td><td>[ 기입 필요 ]</td><td>[ 기입 필요 ]</td><td>연 $99</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>[ 기입 필요 ] 항목:</strong> 인계 시 위 표의 계정 이메일과 담당자 정보를 반드시 채워 주세요. 서비스 중단·키 만료 시 즉시 연락할 수 있어야 합니다.</p>
+                </div>
+            </section>
+
+            <!-- Vercel -->
+            <section id="vercel">
+                <h3><span class="section-icon">🌐</span> Vercel</h3>
+
+                <table>
+                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>대시보드 URL</td><td><a href="https://vercel.com" target="_blank" style="color:var(--primary-light)">vercel.com</a> → 팀 선택 → togate-agent</td></tr>
+                        <tr><td>팀/조직명</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>프로젝트명</td><td>togate-agent</td></tr>
+                        <tr><td>연결 레포지토리</td><td>[ 기입 필요 ] (GitHub)</td></tr>
+                        <tr><td>Production 도메인</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>요금제</td><td>[ 기입 필요 ]</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>팀원 초대 방법</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>Vercel 팀원 초대</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># Vercel 대시보드 경로</span>
+Team Settings → Members → Invite Member → 이메일 입력 → 역할 선택(Developer/Owner)</pre>
+                </div>
+            </section>
+
+            <!-- Database -->
+            <section id="database">
+                <h3><span class="section-icon">🗄️</span> Database (PostgreSQL)</h3>
+
+                <table>
+                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>DB 서비스</td><td>[ 기입 필요 — Neon / Supabase / 자체 서버 등 ]</td></tr>
+                        <tr><td>대시보드 URL</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>DB 이름</td><td>togate (또는 [ 기입 필요 ])</td></tr>
+                        <tr><td>PostgreSQL 버전</td><td>v15 이상</td></tr>
+                        <tr><td>백업 정책</td><td>[ 기입 필요 — 자동 백업 여부, 보관 기간 ]</td></tr>
+                        <tr><td>Connection String 위치</td><td>Vercel 환경변수 DATABASE_URL</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>Connection String 노출 주의:</strong> DB 연결 문자열에는 비밀번호가 포함되어 있습니다. Vercel 환경변수 외 어디에도 평문으로 기록하지 마세요.</p>
+                </div>
+            </section>
+
+            <!-- Gemini -->
+            <section id="gemini">
+                <h3><span class="section-icon">🤖</span> Google AI (Gemini)</h3>
+                <p>AI 회의록의 기본 프로바이더입니다. <code>AI_PROVIDER</code> 환경변수를 설정하지 않으면 자동으로 Gemini가 사용됩니다.</p>
+
+                <table>
+                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>대시보드</td><td><a href="https://aistudio.google.com" target="_blank" style="color:var(--primary-light)">aistudio.google.com</a></td></tr>
+                        <tr><td>사용 모델</td><td>gemini-2.5-flash</td></tr>
+                        <tr><td>관련 환경변수</td><td><code>GEMINI_API_KEY</code></td></tr>
+                        <tr><td>계정 이메일</td><td>[ 기입 필요 ]</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>API 키 발급 방법</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>Gemini API 키 발급 경로</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre>Google AI Studio (aistudio.google.com) → Get API Key → Create API Key in new project</pre>
+                </div>
+            </section>
+
+            <!-- Deepgram -->
+            <section id="deepgram">
+                <h3><span class="section-icon">🎙️</span> Deepgram</h3>
+                <p>음성 녹음 파일을 텍스트로 변환하는 STT(Speech-to-Text) 서비스입니다. Gemini와 함께 사용됩니다.</p>
+
+                <table>
+                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>대시보드</td><td><a href="https://console.deepgram.com" target="_blank" style="color:var(--primary-light)">console.deepgram.com</a></td></tr>
+                        <tr><td>관련 환경변수</td><td><code>DEEPGRAM_API_KEY</code>, <code>DEEPGRAM_PROJECT_ID</code></td></tr>
+                        <tr><td>계정 이메일</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>요금제</td><td>[ 기입 필요 — Pay-as-you-go / 구독 ]</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>API 키 및 프로젝트 ID 확인</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>Deepgram 키 확인 경로</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre>Deepgram Console → 프로젝트 선택 → Settings → API Keys → Create a New API Key
+Project ID: Settings 탭 상단에서 확인</pre>
+                </div>
+            </section>
+
+            <!-- OpenAI -->
+            <section id="openai">
+                <h3><span class="section-icon">🧠</span> OpenAI (선택)</h3>
+                <p><code>AI_PROVIDER=openai</code>로 전환 시 GPT-4o-mini + Whisper STT를 사용합니다. 기본값은 Gemini이므로 필요 시에만 설정합니다.</p>
+
+                <table>
+                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>대시보드</td><td><a href="https://platform.openai.com" target="_blank" style="color:var(--primary-light)">platform.openai.com</a></td></tr>
+                        <tr><td>사용 모델</td><td>gpt-4o-mini (요약), Whisper (STT)</td></tr>
+                        <tr><td>관련 환경변수</td><td><code>OPENAI_API_KEY</code>, <code>AI_PROVIDER=openai</code></td></tr>
+                        <tr><td>계정 이메일</td><td>[ 기입 필요 ]</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- VAPID -->
+            <section id="vapid">
+                <h3><span class="section-icon">🔔</span> 웹 푸시 VAPID 키</h3>
+                <p>VAPID 키는 외부 서비스가 아닌 프로젝트 자체적으로 생성합니다. 키를 분실하거나 재생성하면 기존 구독자의 푸시가 모두 끊기므로 주의가 필요합니다.</p>
+
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>VAPID 키 재생성 금지:</strong> 키를 바꾸면 DB의 모든 <code>PushSubscription</code> 레코드가 무효화되어 전 직원이 푸시 알림을 받을 수 없게 됩니다. 재생성이 불가피한 경우 알림 재구독 안내를 사전에 공지해야 합니다.</p>
+                </div>
+
+                <table>
+                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>Public Key</td><td>Vercel 환경변수 <code>NEXT_PUBLIC_VAPID_PUBLIC_KEY</code>에 저장</td></tr>
+                        <tr><td>Private Key</td><td>Vercel 환경변수 <code>VAPID_PRIVATE_KEY</code>에 저장</td></tr>
+                        <tr><td>키 생성 명령어</td><td><code>npx web-push generate-vapid-keys</code></td></tr>
+                        <tr><td>키 백업 위치</td><td>[ 기입 필요 — 팀 보안 채널 ]</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Apple Developer -->
+            <section id="apple">
+                <h3><span class="section-icon">📱</span> Apple Developer</h3>
+
+                <table>
+                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>대시보드</td><td><a href="https://developer.apple.com" target="_blank" style="color:var(--primary-light)">developer.apple.com</a></td></tr>
+                        <tr><td>App Store Connect</td><td><a href="https://appstoreconnect.apple.com" target="_blank" style="color:var(--primary-light)">appstoreconnect.apple.com</a></td></tr>
+                        <tr><td>팀 계정</td><td>[ 기입 필요 ]</td></tr>
+                        <tr><td>Bundle ID</td><td>[ 기입 필요 — com.togate.agent 등 ]</td></tr>
+                        <tr><td>인증서 만료일</td><td>[ 기입 필요 ] (매년 갱신 필요)</td></tr>
+                        <tr><td>갱신 담당자</td><td>[ 기입 필요 ]</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>인증서 만료 주의:</strong> Apple Developer 인증서는 1년마다 갱신이 필요합니다. 만료되면 앱 업데이트 배포가 불가능합니다. 만료 30일 전 Apple에서 이메일 알림이 발송됩니다.</p>
+                </div>
+            </section>
+
+            <!-- 사용량 & 한도 -->
+            <section id="limits">
+                <h3><span class="section-icon">⚡</span> 사용량 & 한도</h3>
+                <p>외부 서비스의 무료 한도 또는 요금제 한도를 초과하면 서비스가 중단되거나 추가 요금이 발생합니다.</p>
+
+                <table>
+                    <thead><tr><th>서비스</th><th>주요 한도</th><th>초과 시 증상</th><th>모니터링</th></tr></thead>
+                    <tbody>
+                        <tr><td>Gemini AI</td><td>분당 요청 수 (모델별 상이)</td><td>회의록 생성 실패 (429 에러)</td><td>Google AI Studio → Usage</td></tr>
+                        <tr><td>Deepgram</td><td>월 음성 전사 시간 또는 크레딧</td><td>음성 전사 실패</td><td>Deepgram Console → Usage</td></tr>
+                        <tr><td>OpenAI</td><td>월 크레딧 한도</td><td>API 호출 실패 (429 에러)</td><td>platform.openai.com → Usage</td></tr>
+                        <tr><td>Vercel</td><td>월 빌드 시간, 함수 실행 시간, 대역폭</td><td>배포 실패 또는 함수 타임아웃</td><td>Vercel 대시보드 → Usage</td></tr>
+                        <tr><td>DB</td><td>스토리지, 연결 수</td><td>연결 거부 또는 쓰기 실패</td><td>DB 서비스 대시보드</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>비용 알림 설정 권장:</strong> 각 서비스의 대시보드에서 예산 알림을 설정해두면 예상치 못한 비용 급증을 조기에 감지할 수 있습니다.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const pre = btn.closest('.code-block').querySelector('pre');
+            navigator.clipboard.writeText(pre.innerText).then(() => {
+                btn.textContent = '✓ 복사됨';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

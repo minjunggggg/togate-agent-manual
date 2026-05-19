@@ -19,6 +19,11 @@
         <nav>
             <div class="nav-section">개요</div>
             <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">운영</div>
+            <a href="getting-started.html"><span class="icon">🚀</span> 시작하기</a>
+            <a href="deploy.html"><span class="icon">🚢</span> 배포 가이드</a>
+            <a href="services.html"><span class="icon">🔗</span> 외부 서비스</a>
+            <a href="troubleshooting.html"><span class="icon">🛠️</span> 트러블슈팅</a>
             <div class="nav-section">인증</div>
             <a href="login.html" class="page-active"><span class="icon">🔑</span> 로그인</a>
             <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
@@ -66,21 +71,21 @@
         <div class="content">
             <div class="page-header">
                 <h2>로그인 페이지</h2>
-                <p>Togate 사내앱의 인증 진입점입니다. 이메일/비밀번호 로그인과 초기 비밀번호 강제 변경 플로우를 다룹니다.</p>
-                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-15</div>
+                <p>Togate 사내앱의 인증 진입점입니다. 이메일/비밀번호 로그인과 자동 로그인, 미등록 계정 안내 플로우를 다룹니다.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-19</div>
             </div>
 
             <section id="overview">
                 <h3><span class="section-icon">📋</span> 개요</h3>
                 <p>로그인 페이지는 <code
                         style="color:var(--blue);font-family:var(--font-mono)">src/app/login/page.tsx</code> 에 위치하며,
-                    Next.js App Router 기반의 서버 컴포넌트로 렌더링됩니다. 폼 인터랙션은 Server Action(<code
-                        style="color:var(--blue);font-family:var(--font-mono)">actions.ts</code>)으로 처리합니다.</p>
+                    <code style="color:var(--blue);font-family:var(--font-mono)">"use client"</code> 클라이언트 컴포넌트로 구현됩니다.
+                    폼 상태는 <code style="color:var(--blue);font-family:var(--font-mono)">react-hook-form</code>으로 관리하고,
+                    계정 존재 여부 확인은 Server Action(<code style="color:var(--blue);font-family:var(--font-mono)">actions.ts</code>)으로 처리합니다.</p>
 
                 <div class="info-box note">
                     <span class="icon">💡</span>
-                    <p><strong>설계 원칙:</strong> 페이지 컴포넌트는 서버 컴포넌트로 유지해 메타데이터·레이아웃을 서버에서 처리하고, 폼 인터랙션만 클라이언트 컴포넌트로 분리합니다.
-                    </p>
+                    <p><strong>설계 원칙:</strong> 로그인 폼 전체가 클라이언트 컴포넌트입니다. 인터랙션(폼 상태, 자동 로그인 체크박스, 다이얼로그)이 많아 서버 컴포넌트로 분리할 이점이 없습니다. 계정 존재 확인(<code style="font-family:var(--font-mono)">checkUserExists</code>)만 Server Action으로 처리합니다.</p>
                 </div>
 
                 <h4>주요 기능</h4>
@@ -90,11 +95,15 @@
                     <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
                             style="color:var(--primary-light)">→</span> JWT 세션 기반 인증 (Auth.js v5)</li>
                     <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
-                            style="color:var(--primary-light)">→</span> 초기 비밀번호 미변경 시 /settings/password 강제 이동</li>
+                            style="color:var(--primary-light)">→</span> <code style="font-family:var(--font-mono);font-size:12px">checkUserExists</code> 선행 검사 → 로그인 권한 없는 계정 다이얼로그 안내</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 자동 로그인 (rememberMe) 옵션</li>
                     <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
                             style="color:var(--primary-light)">→</span> 로그인 후 callbackUrl 리다이렉트</li>
                     <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
-                            style="color:var(--primary-light)">→</span> 클라이언트·서버 양측 입력값 유효성 검사</li>
+                            style="color:var(--primary-light)">→</span> sessionStorage 폼 임시저장 (LOGIN_DRAFT) — 새로고침 시 복원</li>
+                    <li style="display:flex;gap:10px;font-size:14px;color:var(--text-muted)"><span
+                            style="color:var(--primary-light)">→</span> 앱 종료 / 로그인 권한 없는 계정 다이얼로그 UI</li>
                 </ul>
             </section>
 
@@ -105,8 +114,8 @@
                 <div class="file-tree">
                     <div><span class="dir">src/app/</span></div>
                     <div class="indent"><span class="dir">login/</span></div>
-                    <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← 서버 컴포넌트 진입점. 이미 로그인된 경우 홈(/)으로 리다이렉트</span></div>
-                    <div class="indent indent"><span class="file focus">actions.ts</span> <span class="comment">← Server Action — 이메일/비밀번호 검증 및 signIn() 호출</span></div>
+                    <div class="indent indent"><span class="file focus">page.tsx</span> <span class="comment">← "use client" 클라이언트 컴포넌트. react-hook-form + signIn 처리</span></div>
+                    <div class="indent indent"><span class="file focus">actions.ts</span> <span class="comment">← Server Action — checkUserExists() export</span></div>
                     <div class="indent"><span class="dir">api/auth/</span></div>
                     <div class="indent indent"><span class="file">[...nextauth]/route.ts</span> <span class="comment">← NextAuth 핸들러 (GET · POST)</span></div>
                     <br>
@@ -116,36 +125,87 @@
                     <div class="indent"><span class="file">db.ts</span> <span class="comment">← Prisma 클라이언트 싱글턴 (export const prisma)</span></div>
                     <br>
                     <div><span class="dir">src/proxy.ts</span> <span class="comment">← 인증 게이트 · 초기 비밀번호 강제 변경 · admin 권한 체크 (export: proxy + config)</span></div>
+                    <br>
+                    <div><span class="dir">src/components/</span></div>
+                    <div class="indent"><span class="file">layout/Header.tsx</span> <span class="comment">← onClose prop으로 앱 종료 다이얼로그 트리거</span></div>
+                    <div class="indent"><span class="file">common/Input.tsx</span> <span class="comment">← title · type · state · setState · error · placeholder props</span></div>
+                    <div class="indent"><span class="file">common/Button.tsx</span> <span class="comment">← type · disabled · loading props</span></div>
+                    <div class="indent"><span class="file">common/Dialog.tsx</span> <span class="comment">← message · buttons[] props. 앱 종료 / 로그인 권한 없는 계정 안내에 사용</span></div>
                 </div>
             </section>
 
             <section id="components">
                 <h3><span class="section-icon">🧩</span> 컴포넌트</h3>
 
-                <h4>page.tsx — 서버 컴포넌트</h4>
+                <h4>page.tsx — 클라이언트 컴포넌트</h4>
                 <div class="code-block">
                     <div class="code-header">
                         <div class="code-label"><span class="lang-badge lang-tsx">TSX</span>src/app/login/page.tsx</div>
                         <button class="copy-btn" onclick="copyCode(this)">복사</button>
                     </div>
-                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="ty">Metadata</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next"</span>
-<span class="kw">import</span> <span class="op">{</span> <span class="fn">redirect</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/navigation"</span>
-<span class="kw">import</span> <span class="op">{</span> <span class="fn">auth</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
+                    <pre><span class="str">"use client"</span>
 
-<span class="kw">export</span> <span class="kw">const</span> metadata<span class="op">:</span> <span class="ty">Metadata</span> <span class="op">= {</span>
-  title<span class="op">:</span> <span class="str">"로그인 | Togate"</span><span class="op">,</span>
-  description<span class="op">:</span> <span class="str">"Togate 계정으로 로그인하세요"</span><span class="op">,</span>
-<span class="op">}</span>
+<span class="kw">import</span> <span class="op">{</span> useState, useEffect <span class="op">}</span> <span class="kw">from</span> <span class="str">"react"</span>
+<span class="kw">import</span> <span class="op">{</span> useForm, Controller <span class="op">}</span> <span class="kw">from</span> <span class="str">"react-hook-form"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">signIn</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next-auth/react"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">useRouter</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/navigation"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">checkUserExists</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"./actions"</span>
 
-<span class="kw">export default async function</span> <span class="fn">LoginPage</span><span class="op">() {</span>
-  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
-  <span class="kw">if</span> <span class="op">(</span>session<span class="op">?.user)</span> <span class="fn">redirect</span><span class="op">(</span><span class="str">"/"</span><span class="op">)</span>
+<span class="kw">type</span> <span class="ty">LoginForm</span> <span class="op">= {</span> email<span class="op">:</span> <span class="ty">string</span><span class="op">;</span> password<span class="op">:</span> <span class="ty">string</span> <span class="op">}</span>
 
-  <span class="kw">return</span> <span class="op">(</span>
-    <span class="tag">&lt;main</span> <span class="atr">className</span><span class="op">=</span><span class="str">"flex min-h-screen items-center justify-center"</span><span class="tag">&gt;</span>
-      <span class="cmt">{/* 폼 렌더링 — actions.ts의 Server Action을 form action으로 연결 */}</span>
-    <span class="tag">&lt;/main&gt;</span>
-  <span class="op">)</span>
+<span class="kw">const</span> LOGIN_DRAFT <span class="op">=</span> <span class="str">"login_draft"</span>  <span class="cmt">// sessionStorage 키</span>
+
+<span class="kw">export default function</span> <span class="fn">LoginPage</span><span class="op">() {</span>
+  <span class="kw">const</span> router <span class="op">=</span> <span class="fn">useRouter</span><span class="op">()</span>
+  <span class="kw">const</span> [callbackUrl, setCallbackUrl] <span class="op">=</span> <span class="fn">useState</span><span class="op">(</span><span class="str">"/"</span><span class="op">)</span>
+  <span class="kw">const</span> [autoLogin, setAutoLogin] <span class="op">=</span> <span class="fn">useState</span><span class="op">(</span><span class="kw">false</span><span class="op">)</span>
+  <span class="kw">const</span> [dialog, setDialog] <span class="op">=</span> <span class="fn">useState</span><span class="op">&lt;</span><span class="str">"exit"</span> <span class="op">|</span> <span class="str">"unknownUser"</span> <span class="op">|</span> <span class="kw">null</span><span class="op">&gt;(</span><span class="kw">null</span><span class="op">)</span>
+
+  <span class="kw">const</span> <span class="op">{</span> control, handleSubmit, watch, setValue, setError,
+    formState<span class="op">: {</span> errors, isSubmitting <span class="op">}</span> <span class="op">} =</span> <span class="fn">useForm</span><span class="op">&lt;</span><span class="ty">LoginForm</span><span class="op">&gt;({</span>
+    defaultValues<span class="op">: {</span> email<span class="op">:</span> <span class="str">""</span><span class="op">,</span> password<span class="op">:</span> <span class="str">""</span> <span class="op">},</span>
+  <span class="op">})</span>
+
+  <span class="kw">const</span> [watchedEmail, watchedPassword] <span class="op">=</span> <span class="fn">watch</span><span class="op">([</span><span class="str">"email"</span><span class="op">,</span> <span class="str">"password"</span><span class="op">])</span>
+
+  <span class="fn">useEffect</span><span class="op">(() => {</span>
+    <span class="kw">const</span> params <span class="op">=</span> <span class="kw">new</span> <span class="fn">URLSearchParams</span><span class="op">(</span>window.location.search<span class="op">)</span>
+    <span class="fn">setCallbackUrl</span><span class="op">(</span>params.<span class="fn">get</span><span class="op">(</span><span class="str">"callbackUrl"</span><span class="op">) ??</span> <span class="str">"/"</span><span class="op">)</span>
+  <span class="op">},</span> <span class="op">[])</span>
+
+  <span class="fn">useEffect</span><span class="op">(() => {</span>               <span class="cmt">// sessionStorage 복원</span>
+    <span class="kw">const</span> saved <span class="op">=</span> sessionStorage.<span class="fn">getItem</span><span class="op">(</span>LOGIN_DRAFT<span class="op">)</span>
+    <span class="kw">if</span> <span class="op">(</span>saved<span class="op">) {</span>
+      <span class="kw">const</span> draft <span class="op">=</span> <span class="fn">JSON.parse</span><span class="op">(</span>saved<span class="op">)</span>
+      <span class="fn">setValue</span><span class="op">(</span><span class="str">"email"</span><span class="op">,</span> draft.email <span class="op">??</span> <span class="str">""</span><span class="op">)</span>
+      <span class="fn">setValue</span><span class="op">(</span><span class="str">"password"</span><span class="op">,</span> draft.password <span class="op">??</span> <span class="str">""</span><span class="op">)</span>
+    <span class="op">}</span>
+  <span class="op">},</span> <span class="op">[])</span>
+
+  <span class="fn">useEffect</span><span class="op">(() => {</span>               <span class="cmt">// 입력값 임시저장</span>
+    <span class="kw">if</span> <span class="op">(</span>watchedEmail <span class="op">||</span> watchedPassword<span class="op">)</span>
+      sessionStorage.<span class="fn">setItem</span><span class="op">(</span>LOGIN_DRAFT<span class="op">,</span> <span class="fn">JSON.stringify</span><span class="op">({</span> email<span class="op">:</span> watchedEmail<span class="op">,</span> password<span class="op">:</span> watchedPassword <span class="op">}))</span>
+  <span class="op">},</span> <span class="op">[</span>watchedEmail<span class="op">,</span> watchedPassword<span class="op">])</span>
+
+  <span class="kw">async function</span> <span class="fn">onSubmit</span><span class="op">({</span> email<span class="op">,</span> password <span class="op">}:</span> <span class="ty">LoginForm</span><span class="op">) {</span>
+    <span class="kw">const</span> userExists <span class="op">=</span> <span class="kw">await</span> <span class="fn">checkUserExists</span><span class="op">(</span>email<span class="op">)</span>
+    <span class="kw">if</span> <span class="op">(!</span>userExists<span class="op">) {</span> <span class="fn">setDialog</span><span class="op">(</span><span class="str">"unknownUser"</span><span class="op">);</span> <span class="kw">return</span> <span class="op">}</span>
+
+    <span class="kw">const</span> result <span class="op">=</span> <span class="kw">await</span> <span class="fn">signIn</span><span class="op">(</span><span class="str">"credentials"</span><span class="op">, {</span>
+      email<span class="op">,</span> password<span class="op">,</span> rememberMe<span class="op">:</span> <span class="fn">String</span><span class="op">(</span>autoLogin<span class="op">),</span> redirect<span class="op">:</span> <span class="kw">false</span><span class="op">,</span>
+    <span class="op">})</span>
+
+    <span class="kw">if</span> <span class="op">(</span>result<span class="op">?.error) {</span>
+      <span class="fn">setError</span><span class="op">(</span><span class="str">"password"</span><span class="op">, {</span> message<span class="op">:</span> <span class="str">"비밀번호를 다시 입력해 주세요."</span> <span class="op">})</span>
+    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
+      <span class="kw">if</span> <span class="op">(!</span>autoLogin<span class="op">) {</span>          <span class="cmt">// 자동 로그인 미사용: 브라우저 세션 한정 처리</span>
+        sessionStorage.<span class="fn">setItem</span><span class="op">(</span><span class="str">"session_active"</span><span class="op">,</span> <span class="str">"1"</span><span class="op">)</span>
+        document.cookie <span class="op">=</span> <span class="str">"no_rm_session=1; path=/; SameSite=Lax"</span>
+      <span class="op">}</span>
+      router.<span class="fn">push</span><span class="op">(</span>callbackUrl<span class="op">)</span>
+      router.<span class="fn">refresh</span><span class="op">()</span>
+    <span class="op">}</span>
+  <span class="op">}</span>
 <span class="op">}</span></pre>
                 </div>
 
@@ -157,27 +217,27 @@
                     </div>
                     <pre><span class="str">"use server"</span>
 
-<span class="kw">import</span> <span class="op">{</span> <span class="fn">signIn</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
-<span class="kw">import</span> <span class="op">{</span> <span class="fn">redirect</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/navigation"</span>
-
-<span class="kw">export async function</span> <span class="fn">login</span><span class="op">(</span>formData<span class="op">:</span> <span class="ty">FormData</span><span class="op">) {</span>
-  <span class="kw">const</span> email    <span class="op">=</span> formData.<span class="fn">get</span><span class="op">(</span><span class="str">"email"</span><span class="op">)</span>    <span class="kw">as</span> <span class="ty">string</span>
-  <span class="kw">const</span> password <span class="op">=</span> formData.<span class="fn">get</span><span class="op">(</span><span class="str">"password"</span><span class="op">)</span> <span class="kw">as</span> <span class="ty">string</span>
-
-  <span class="kw">await</span> <span class="fn">signIn</span><span class="op">(</span><span class="str">"credentials"</span><span class="op">, {</span> email<span class="op">,</span> password<span class="op">,</span> redirect<span class="op">:</span> <span class="kw">false</span> <span class="op">})</span>
-  <span class="fn">redirect</span><span class="op">(</span><span class="str">"/"</span><span class="op">)</span>
+<span class="kw">export async function</span> <span class="fn">checkUserExists</span><span class="op">(</span>email<span class="op">:</span> <span class="ty">string</span><span class="op">):</span> <span class="ty">Promise</span><span class="op">&lt;</span><span class="ty">boolean</span><span class="op">&gt; {</span>
+  <span class="cmt">// DB에서 이메일로 사용자 조회 후 존재 여부 반환</span>
+  <span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> prisma.user.<span class="fn">findUnique</span><span class="op">({ where: {</span> email <span class="op">} })</span>
+  <span class="kw">return</span> user <span class="op">!==</span> <span class="kw">null</span>
 <span class="op">}</span></pre>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>왜 Server Action인가:</strong> <code style="font-family:var(--font-mono)">checkUserExists</code>는 DB에 직접 접근해야 하므로 Server Action으로 구현합니다. 클라이언트에서 <code style="font-family:var(--font-mono)">await checkUserExists(email)</code>로 호출하면 Next.js가 내부적으로 POST 요청을 처리합니다.</p>
                 </div>
             </section>
 
             <section id="auth-flow">
                 <h3><span class="section-icon">🔄</span> 인증 흐름</h3>
 
-                <h4>이메일 / 비밀번호</h4>
+                <h4>이메일 / 비밀번호 로그인</h4>
                 <div class="flow">
                     <div class="flow-step"><div class="step-label">사용자</div><div class="step-name">폼 제출</div></div>
                     <div class="flow-arrow">→</div>
-                    <div class="flow-step highlight"><div class="step-label">클라이언트</div><div class="step-name">Zod 검사</div></div>
+                    <div class="flow-step highlight"><div class="step-label">Server Action</div><div class="step-name">checkUserExists</div></div>
                     <div class="flow-arrow">→</div>
                     <div class="flow-step"><div class="step-label">NextAuth</div><div class="step-name">signIn()</div></div>
                     <div class="flow-arrow">→</div>
@@ -185,6 +245,26 @@
                     <div class="flow-arrow">→</div>
                     <div class="flow-step highlight"><div class="step-label">성공</div><div class="step-name">리다이렉트</div></div>
                 </div>
+
+                <h4>미등록 계정 처리</h4>
+                <div class="flow">
+                    <div class="flow-step"><div class="step-label">사용자</div><div class="step-name">폼 제출</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">Server Action</div><div class="step-name">checkUserExists → false</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step"><div class="step-label">클라이언트</div><div class="step-name">unknownUser Dialog 표시</div></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step highlight"><div class="step-label">사용자</div><div class="step-name">확인 후 종료</div></div>
+                </div>
+
+                <h4>자동 로그인 처리</h4>
+                <table>
+                    <thead><tr><th>자동 로그인</th><th>동작</th></tr></thead>
+                    <tbody>
+                        <tr><td>체크 O</td><td><code style="font-family:var(--font-mono);font-size:12px">rememberMe: "true"</code> 전달 → 세션 쿠키 장기 유지</td></tr>
+                        <tr><td>체크 X</td><td><code style="font-family:var(--font-mono);font-size:12px">sessionStorage.session_active = "1"</code> 저장, <code style="font-family:var(--font-mono);font-size:12px">no_rm_session=1</code> 쿠키 설정 → 브라우저 종료 시 세션 만료</td></tr>
+                    </tbody>
+                </table>
 
                 <h4>초기 비밀번호 강제 변경 흐름 (proxy.ts)</h4>
                 <div class="flow">
@@ -230,66 +310,89 @@
                     <pre><span class="kw">import</span> NextAuth <span class="kw">from</span> <span class="str">"next-auth"</span>
 <span class="kw">import</span> Credentials <span class="kw">from</span> <span class="str">"next-auth/providers/credentials"</span>
 <span class="kw">import</span> <span class="op">{</span> prisma <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/db"</span>
+<span class="kw">import</span> bcrypt <span class="kw">from</span> <span class="str">"bcryptjs"</span>
+<span class="kw">import</span> <span class="op">{</span> authConfig <span class="op">}</span> <span class="kw">from</span> <span class="str">"./auth.config"</span>
 
 <span class="kw">export const</span> <span class="op">{</span> <span class="fn">handlers</span><span class="op">,</span> <span class="fn">auth</span><span class="op">,</span> <span class="fn">signIn</span><span class="op">,</span> <span class="fn">signOut</span> <span class="op">} =</span> <span class="fn">NextAuth</span><span class="op">({</span>
-  session<span class="op">: {</span> strategy<span class="op">:</span> <span class="str">"jwt"</span> <span class="op">},</span>
+  <span class="op">...</span>authConfig<span class="op">,</span>
   providers<span class="op">: [</span>
     <span class="fn">Credentials</span><span class="op">({</span>
+      name<span class="op">:</span> <span class="str">"credentials"</span><span class="op">,</span>
+      credentials<span class="op">: {</span>
+        email<span class="op">:      {</span> label<span class="op">:</span> <span class="str">"이메일"</span><span class="op">,</span>    type<span class="op">:</span> <span class="str">"email"</span>  <span class="op">},</span>
+        password<span class="op">:   {</span> label<span class="op">:</span> <span class="str">"비밀번호"</span><span class="op">,</span>  type<span class="op">:</span> <span class="str">"password"</span> <span class="op">},</span>
+        rememberMe<span class="op">: {</span> label<span class="op">:</span> <span class="str">"자동 로그인"</span><span class="op">,</span> type<span class="op">:</span> <span class="str">"text"</span>    <span class="op">},</span>
+      <span class="op">},</span>
       <span class="kw">async</span> <span class="fn">authorize</span><span class="op">(</span>credentials<span class="op">) {</span>
+        <span class="kw">if</span> <span class="op">(!</span>credentials<span class="op">?.email ||</span> <span class="op">!</span>credentials<span class="op">?.password)</span> <span class="kw">return null</span>
+
         <span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> prisma.user.<span class="fn">findUnique</span><span class="op">({</span>
           where<span class="op">: {</span> email<span class="op">:</span> credentials.email <span class="kw">as</span> <span class="ty">string</span> <span class="op">},</span>
         <span class="op">})</span>
         <span class="kw">if</span> <span class="op">(!</span>user<span class="op">)</span> <span class="kw">return null</span>
-        <span class="cmt">// bcrypt 검증 후 user 반환</span>
-        <span class="kw">return</span> user
+
+        <span class="kw">const</span> isValid <span class="op">=</span> <span class="kw">await</span> bcrypt.<span class="fn">compare</span><span class="op">(</span>
+          credentials.password <span class="kw">as</span> <span class="ty">string</span><span class="op">,</span>
+          user.password
+        <span class="op">)</span>
+        <span class="kw">if</span> <span class="op">(!</span>isValid<span class="op">)</span> <span class="kw">return null</span>
+
+        <span class="kw">const</span> prevLoginAt <span class="op">=</span> user.lastLoginAt
+        <span class="kw">await</span> prisma.user.<span class="fn">update</span><span class="op">({</span>
+          where<span class="op">: {</span> id<span class="op">:</span> user.id <span class="op">},</span>
+          data<span class="op">:  {</span> lastLoginAt<span class="op">:</span> <span class="kw">new</span> <span class="fn">Date</span><span class="op">() },</span>
+        <span class="op">})</span>
+
+        <span class="kw">return</span> <span class="op">{</span>
+          id<span class="op">:</span>              user.id<span class="op">,</span>
+          email<span class="op">:</span>           user.email<span class="op">,</span>
+          name<span class="op">:</span>            user.name<span class="op">,</span>
+          role<span class="op">:</span>            user.role<span class="op">,</span>
+          rememberMe<span class="op">:</span>      credentials.rememberMe <span class="op">===</span> <span class="str">"true"</span><span class="op">,</span>
+          passwordChanged<span class="op">:</span> user.passwordChanged<span class="op">,</span>
+          lastLoginAt<span class="op">:</span>     prevLoginAt<span class="op">?.</span><span class="fn">toISOString</span><span class="op">() ??</span> <span class="kw">null</span><span class="op">,</span>
+        <span class="op">}</span>
       <span class="op">},</span>
     <span class="op">}),</span>
   <span class="op">],</span>
-  pages<span class="op">: {</span>
-    signIn<span class="op">:</span> <span class="str">"/login"</span><span class="op">,</span>
-    error<span class="op">:</span>  <span class="str">"/login"</span><span class="op">,</span>
-  <span class="op">},</span>
 <span class="op">})</span></pre>
                 </div>
 
                 <div class="info-box note">
                     <span class="icon">💡</span>
-                    <p><strong>auth.config.ts 분리:</strong> Credentials Provider 설정, callbacks, JWT 로직은 <code style="font-family:var(--font-mono)">src/lib/auth.config.ts</code>로 분리해 관리합니다. <code style="font-family:var(--font-mono)">auth.ts</code>는 <code style="font-family:var(--font-mono)">NextAuth(authConfig)</code>를 호출해 handlers를 export하는 역할만 합니다.</p>
+                    <p><strong>auth.config.ts 분리:</strong> <code style="font-family:var(--font-mono)">session</code> · <code style="font-family:var(--font-mono)">pages</code> · <code style="font-family:var(--font-mono)">callbacks</code>(JWT, session)는 <code style="font-family:var(--font-mono)">auth.config.ts</code>에 분리합니다. DB 접근(Prisma)과 bcrypt가 필요한 Credentials Provider 로직은 Node.js 전용 API를 사용하므로 proxy.ts와 공유 불가 — <code style="font-family:var(--font-mono)">auth.ts</code>에 직접 정의합니다.</p>
+                </div>
+
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>authorize 반환값:</strong> JWT에 포함할 커스텀 필드(<code style="font-family:var(--font-mono)">role</code>, <code style="font-family:var(--font-mono)">rememberMe</code>, <code style="font-family:var(--font-mono)">passwordChanged</code>, <code style="font-family:var(--font-mono)">lastLoginAt</code>)를 함께 반환합니다. <code style="font-family:var(--font-mono)">lastLoginAt</code>은 로그인 성공 직전 시각(이전 접속일)을 전달하기 위해 업데이트 전 값을 저장합니다.</p>
                 </div>
             </section>
 
             <section id="validation">
                 <h3><span class="section-icon">✅</span> 유효성 검사</h3>
-                <p>Server Action(<code style="font-family:var(--font-mono)">actions.ts</code>) 내부에서 Zod로 입력값을 검증합니다.</p>
+                <p>클라이언트에서는 <code style="font-family:var(--font-mono)">react-hook-form</code>으로 폼 상태를 관리하고, 제출 버튼은 이메일·비밀번호가 모두 입력된 경우에만 활성화됩니다. 서버 측 Zod 검증은 <code style="font-family:var(--font-mono)">auth.config.ts</code>의 Credentials Provider <code style="font-family:var(--font-mono)">authorize</code>에서 수행합니다.</p>
+
+                <h4>버튼 활성화 조건</h4>
                 <div class="code-block">
                     <div class="code-header">
-                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>src/app/login/actions.ts — Zod 검증</div>
+                        <div class="code-label"><span class="lang-badge lang-tsx">TSX</span>제출 버튼 disabled 조건</div>
                         <button class="copy-btn" onclick="copyCode(this)">복사</button>
                     </div>
-                    <pre><span class="str">"use server"</span>
-
-<span class="kw">import</span> <span class="op">{</span> z <span class="op">}</span> <span class="kw">from</span> <span class="str">"zod"</span>
-<span class="kw">import</span> <span class="op">{</span> <span class="fn">signIn</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
-
-<span class="kw">const</span> schema <span class="op">=</span> z.<span class="fn">object</span><span class="op">({</span>
-  email<span class="op">:</span>    z.<span class="fn">string</span><span class="op">().</span><span class="fn">min</span><span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="str">"이메일을 입력해주세요."</span><span class="op">).</span><span class="fn">email</span><span class="op">(</span><span class="str">"올바른 이메일 형식이 아닙니다."</span><span class="op">),</span>
-  password<span class="op">:</span> z.<span class="fn">string</span><span class="op">().</span><span class="fn">min</span><span class="op">(</span><span class="num">8</span><span class="op">,</span> <span class="str">"비밀번호는 8자 이상이어야 합니다."</span><span class="op">),</span>
-<span class="op">})</span>
-
-<span class="kw">export async function</span> <span class="fn">login</span><span class="op">(</span>formData<span class="op">:</span> <span class="ty">FormData</span><span class="op">) {</span>
-  <span class="kw">const</span> parsed <span class="op">=</span> schema.<span class="fn">safeParse</span><span class="op">({</span>
-    email<span class="op">:</span>    formData.<span class="fn">get</span><span class="op">(</span><span class="str">"email"</span><span class="op">),</span>
-    password<span class="op">:</span> formData.<span class="fn">get</span><span class="op">(</span><span class="str">"password"</span><span class="op">),</span>
-  <span class="op">})</span>
-  <span class="kw">if</span> <span class="op">(!</span>parsed.success<span class="op">)</span> <span class="kw">return</span> <span class="op">{</span> error<span class="op">:</span> parsed.error.issues<span class="op">[</span><span class="num">0</span><span class="op">].</span>message <span class="op">}</span>
-  <span class="kw">await</span> <span class="fn">signIn</span><span class="op">(</span><span class="str">"credentials"</span><span class="op">,</span> parsed.data<span class="op">)</span>
-<span class="op">}</span></pre>
+                    <pre><span class="tag">&lt;Button</span>
+  <span class="atr">type</span><span class="op">=</span><span class="str">"submit"</span>
+  <span class="atr">disabled</span><span class="op">={!</span>watchedEmail <span class="op">||</span> <span class="op">!</span>watchedPassword<span class="op">}</span>
+  <span class="atr">loading</span><span class="op">={</span>isSubmitting<span class="op">}</span>
+<span class="tag">&gt;</span>
+  <span class="op">{</span>isSubmitting <span class="op">?</span> <span class="str">"로그인 중..."</span> <span class="op">:</span> <span class="str">"로그인"</span><span class="op">}</span>
+<span class="tag">&lt;/Button&gt;</span></pre>
                 </div>
+
                 <table>
-                    <thead><tr><th>필드</th><th>규칙</th><th>에러 메시지</th></tr></thead>
+                    <thead><tr><th>필드</th><th>클라이언트 규칙</th><th>비고</th></tr></thead>
                     <tbody>
-                        <tr><td>email</td><td>필수, 이메일 형식</td><td>이메일을 입력해주세요 / 올바른 이메일 형식이 아닙니다</td></tr>
-                        <tr><td>password</td><td>필수, 최소 8자</td><td>비밀번호를 입력해주세요 / 비밀번호는 8자 이상이어야 합니다</td></tr>
+                        <tr><td>email</td><td>비어 있으면 버튼 비활성화</td><td>형식 검증은 서버 측에서 처리</td></tr>
+                        <tr><td>password</td><td>비어 있으면 버튼 비활성화</td><td>오류 시 <code style="font-family:var(--font-mono);font-size:12px">setError("password")</code>로 필드 에러 표시</td></tr>
                     </tbody>
                 </table>
             </section>
@@ -297,27 +400,28 @@
             <section id="error">
                 <h3><span class="section-icon">⚠️</span> 에러 처리</h3>
                 <table>
-                    <thead><tr><th>에러 코드</th><th>원인</th><th>사용자 메시지</th><th>처리 위치</th></tr></thead>
+                    <thead><tr><th>상황</th><th>원인</th><th>사용자 메시지</th><th>처리 방식</th></tr></thead>
                     <tbody>
-                        <tr><td>CredentialsSignin</td><td>이메일/비밀번호 불일치</td><td>이메일 또는 비밀번호가 올바르지 않습니다.</td><td>LoginForm</td></tr>
-                        <tr><td>네트워크 오류</td><td>서버 연결 실패</td><td>서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.</td><td>LoginForm</td></tr>
+                        <tr><td>미등록 계정</td><td><code style="font-family:var(--font-mono);font-size:12px">checkUserExists</code> → false</td><td>로그인 권한이 없는 계정입니다. 관리자에게 문의해주시기 바랍니다.</td><td>unknownUser Dialog</td></tr>
+                        <tr><td>비밀번호 불일치</td><td>NextAuth <code style="font-family:var(--font-mono);font-size:12px">result.error</code></td><td>비밀번호를 다시 입력해 주세요.</td><td>password 필드 <code style="font-family:var(--font-mono);font-size:12px">setError</code></td></tr>
+                        <tr><td>앱 종료 요청</td><td>Header onClose 클릭</td><td>실행중인 앱을 종료하시겠습니까?</td><td>exit Dialog → window.close()</td></tr>
                     </tbody>
                 </table>
             </section>
 
             <section id="security">
                 <h3><span class="section-icon">🔒</span> 보안</h3>
-                <div class="info-box danger">
-                    <span class="icon">🚨</span>
-                    <p><strong>절대 하지 말 것:</strong> 인증 실패 시 "이메일이 존재하지 않습니다" / "비밀번호가 틀렸습니다"를 구분해 노출하지 마세요. 계정 열거(Account Enumeration) 공격에 악용됩니다.</p>
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>미등록 계정 vs 비밀번호 오류 분리:</strong> 이 앱은 사내 임직원 전용이므로, 미등록 계정(관리자 초대 필요)과 비밀번호 오류를 의도적으로 구분해 안내합니다. 일반 공개 서비스에서는 계정 열거(Account Enumeration) 방지를 위해 두 에러를 동일한 메시지로 통일해야 합니다.</p>
                 </div>
                 <ul class="checklist">
                     <li><span class="check">✓</span> 비밀번호는 bcrypt (cost factor 12) 로 해싱</li>
                     <li><span class="check">✓</span> HTTPS 환경에서만 쿠키 전송 (Secure 플래그)</li>
                     <li><span class="check">✓</span> CSRF 토큰 — NextAuth 내장 보호 사용</li>
                     <li><span class="check">✓</span> proxy.ts에서 인증 게이트 + 초기 비밀번호 강제 변경 처리</li>
-                    <li><span class="check">✓</span> 에러 메시지 통일 — 계정 열거 방지</li>
                     <li><span class="check">✓</span> AUTH_SECRET 32자 이상 랜덤 문자열 사용</li>
+                    <li><span class="check">✓</span> 자동 로그인 미사용 시 no_rm_session 쿠키로 세션 범위 제한</li>
                 </ul>
             </section>
 
@@ -360,10 +464,13 @@
                 <div class="info-box success"><span class="icon">✅</span><p>로그인 기능을 배포하기 전 아래 항목을 모두 확인하세요.</p></div>
                 <h4>코드</h4>
                 <ul class="checklist">
-                    <li><span class="check">✓</span> 클라이언트 / 서버 양측 Zod 유효성 검사 확인</li>
-                    <li><span class="check">✓</span> 에러 메시지가 내부 정보를 노출하지 않는지 확인</li>
+                    <li><span class="check">✓</span> react-hook-form watch 기반 버튼 활성화 조건 확인 (email AND password 모두 입력 시)</li>
+                    <li><span class="check">✓</span> checkUserExists → 로그인 권한 없는 계정 Dialog 표시 확인</li>
+                    <li><span class="check">✓</span> 비밀번호 오류 시 setError("password") 필드 에러 표시 확인</li>
                     <li><span class="check">✓</span> <code style="font-family:var(--font-mono);font-size:12px;color:var(--blue)">redirect: false</code> 사용 후 수동 라우팅 처리</li>
-                    <li><span class="check">✓</span> 로딩 중 버튼 비활성화 (중복 제출 방지)</li>
+                    <li><span class="check">✓</span> 로딩 중 버튼 비활성화 (isSubmitting — 중복 제출 방지)</li>
+                    <li><span class="check">✓</span> 자동 로그인 미사용 시 no_rm_session 쿠키 설정 확인</li>
+                    <li><span class="check">✓</span> sessionStorage LOGIN_DRAFT 복원 로직 확인</li>
                 </ul>
                 <h4>인프라</h4>
                 <ul class="checklist">
@@ -375,8 +482,10 @@
                 <h4>테스트</h4>
                 <ul class="checklist">
                     <li><span class="check">✓</span> 정상 로그인 → callbackUrl 리다이렉트 (기본: /)</li>
-                    <li><span class="check">✓</span> 잘못된 비밀번호 → 에러 메시지 표시</li>
-                    <li><span class="check">✓</span> 이미 로그인된 사용자 → 홈(/) 리다이렉트</li>
+                    <li><span class="check">✓</span> 미등록 계정 → unknownUser Dialog 표시</li>
+                    <li><span class="check">✓</span> 잘못된 비밀번호 → password 필드 에러 메시지 표시</li>
+                    <li><span class="check">✓</span> 자동 로그인 체크 O/X 시 세션 유지 동작 차이 확인</li>
+                    <li><span class="check">✓</span> 새로고침 후 sessionStorage에서 폼 값 복원 확인</li>
                     <li><span class="check">✓</span> 초기 비밀번호 미변경 계정 → /settings/password 강제 이동</li>
                 </ul>
             </section>

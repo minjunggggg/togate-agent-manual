@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개발자 매뉴얼 — 트러블슈팅 | Togate</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="badge">DEV MANUAL</div>
+            <h1>Togate Docs</h1>
+            <p>개발자 가이드 v1.0</p>
+        </div>
+        <nav>
+            <div class="nav-section">개요</div>
+            <a href="index.html"><span class="icon">🏠</span> 프로젝트 개요</a>
+            <div class="nav-section">운영</div>
+            <a href="getting-started.html"><span class="icon">🚀</span> 시작하기</a>
+            <a href="deploy.html"><span class="icon">🚢</span> 배포 가이드</a>
+            <a href="services.html"><span class="icon">🔗</span> 외부 서비스</a>
+            <a href="troubleshooting.html" class="page-active"><span class="icon">🛠️</span> 트러블슈팅</a>
+            <div class="nav-section">인증</div>
+            <a href="login.html"><span class="icon">🔑</span> 로그인</a>
+            <a href="signup.html"><span class="icon">👤</span> 사용자 등록</a>
+            <a href="settings.html"><span class="icon">⚙️</span> 비밀번호 변경</a>
+            <div class="nav-section">콘텐츠</div>
+            <a href="notice.html"><span class="icon">📢</span> 공지사항</a>
+            <a href="contacts.html"><span class="icon">📞</span> 비상연락망</a>
+            <div class="nav-section">일정</div>
+            <a href="calendar.html"><span class="icon">📅</span> 캘린더</a>
+            <a href="schedule.html"><span class="icon">🗓️</span> 일정 관리</a>
+            <a href="admin-leave.html"><span class="icon">🏖️</span> 연차 관리</a>
+            <div class="nav-section">AI</div>
+            <a href="meeting.html"><span class="icon">🎙️</span> 회의록</a>
+            <div class="nav-section">알림</div>
+            <a href="notification.html"><span class="icon">🔔</span> 알림</a>
+            <div class="nav-section">이 페이지</div>
+            <a href="#setup" class="active"><span class="icon">🔧</span> 환경 세팅</a>
+            <a href="#prisma"><span class="icon">🗄️</span> Prisma / DB</a>
+            <a href="#auth"><span class="icon">🔑</span> 인증</a>
+            <a href="#push"><span class="icon">🔔</span> 웹 푸시</a>
+            <a href="#ai"><span class="icon">🤖</span> AI 회의록</a>
+            <a href="#deploy"><span class="icon">🚢</span> 배포</a>
+            <a href="#ios"><span class="icon">📱</span> iOS</a>
+        </nav>
+        <div class="sidebar-footer">
+            Next.js 16 · TypeScript · App Router
+        </div>
+    </aside>
+
+    <div id="main">
+        <div class="topbar">
+            <div class="topbar-breadcrumb">
+                Docs <span style="color:var(--text-dim)">›</span> 운영 <span style="color:var(--text-dim)">›</span>
+                <span>트러블슈팅</span>
+            </div>
+            <div class="topbar-right">
+                <span class="chip next">⬡ Next.js 16</span>
+                <span class="chip ts">TS TypeScript</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-header">
+                <h2>트러블슈팅</h2>
+                <p>개발·운영 중 자주 발생하는 오류와 해결 방법을 모아 정리합니다. 오류를 마주치면 여기서 먼저 찾아보세요.</p>
+                <div class="updated"><span class="dot"></span> 마지막 업데이트 2026-05-14</div>
+            </div>
+
+            <!-- 환경 세팅 -->
+            <section id="setup">
+                <h3><span class="section-icon">🔧</span> 환경 세팅 문제</h3>
+
+                <h4>❌ <code>npm install</code> 후 실행 시 모듈 오류</h4>
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>증상:</strong> <code>Cannot find module 'XXX'</code> 또는 <code>Module not found</code></p>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: node_modules 초기화</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># node_modules와 lock 파일 삭제 후 재설치</span>
+<span class="fn">rm</span> -rf node_modules .next
+<span class="fn">npm</span> ci             <span class="cmt"># package-lock.json 기준으로 정확히 설치</span>
+<span class="fn">npm</span> run dev</pre>
+                </div>
+
+                <h4>❌ Next.js 개발 서버가 실행은 되는데 화면이 빈 페이지</h4>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>원인:</strong> <code>.env.local</code> 파일이 없거나 <code>AUTH_SECRET</code>이 비어 있을 때 발생합니다.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: 환경변수 확인</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># .env.local 존재 여부 확인</span>
+<span class="fn">ls</span> -la .env.local
+
+<span class="cmt"># AUTH_SECRET 값이 있는지 확인 (값 자체는 노출 주의)</span>
+<span class="fn">grep</span> AUTH_SECRET .env.local</pre>
+                </div>
+
+                <h4>❌ <code>NEXT_PUBLIC_VAPID_PUBLIC_KEY is not defined</code></h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: VAPID 키 생성 및 env 추가</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># VAPID 키 쌍 생성</span>
+<span class="fn">npx</span> web-push generate-vapid-keys
+
+<span class="cmt"># 출력된 값을 .env.local에 추가</span>
+<span class="str">NEXT_PUBLIC_VAPID_PUBLIC_KEY</span>=xxxxxxx
+<span class="str">VAPID_PRIVATE_KEY</span>=xxxxxxx
+<span class="str">VAPID_MAILTO</span>=<span class="str">mailto:admin@togate.com</span></pre>
+                </div>
+            </section>
+
+            <!-- Prisma / DB -->
+            <section id="prisma">
+                <h3><span class="section-icon">🗄️</span> Prisma / DB 문제</h3>
+
+                <h4>❌ <code>@prisma/adapter-pg is required</code> 런타임 에러</h4>
+                <div class="info-box danger">
+                    <span class="icon">🚨</span>
+                    <p><strong>원인:</strong> Prisma 7은 어댑터 주입이 필수입니다. <code>src/lib/db.ts</code>에서 <code>PrismaPg</code> 어댑터 없이 <code>PrismaClient</code>를 직접 생성하면 발생합니다.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>올바른 db.ts 패턴</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaClient</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/generated/prisma/client"</span>  <span class="cmt">// ← @prisma/client 아님!</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="ty">PrismaPg</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@prisma/adapter-pg"</span>
+
+<span class="kw">function</span> <span class="fn">createPrismaClient</span><span class="op">() {</span>
+  <span class="kw">const</span> adapter <span class="op">=</span> <span class="kw">new</span> <span class="ty">PrismaPg</span><span class="op">({</span> connectionString<span class="op">:</span> process.env.<span class="fn">DATABASE_URL</span>! <span class="op">})</span>
+  <span class="kw">return new</span> <span class="ty">PrismaClient</span><span class="op">({</span> adapter <span class="op">})</span>   <span class="cmt">// ← adapter 필수</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <h4>❌ <code>Cannot find module '@/generated/prisma/client'</code></h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: Prisma 클라이언트 재생성</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># Prisma 클라이언트 수동 생성</span>
+<span class="fn">npx</span> prisma generate
+
+<span class="cmt"># 또는 빌드 명령어 (prisma generate 포함됨)</span>
+<span class="fn">npm</span> run build</pre>
+                </div>
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p>Import 경로는 반드시 <code>@/generated/prisma/client</code>입니다. <code>@prisma/client</code>를 사용하면 Prisma 7에서 동작하지 않습니다. <code>prisma/schema.prisma</code>의 <code>output</code> 설정을 확인하세요.</p>
+                </div>
+
+                <h4>❌ <code>npm run db:migrate</code> 실행 시 연결 오류</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: DATABASE_URL 확인</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># DB URL 형식 확인</span>
+<span class="cmt"># postgresql://USER:PASSWORD@HOST:PORT/DBNAME</span>
+<span class="fn">echo</span> $DATABASE_URL
+
+<span class="cmt"># 로컬 PostgreSQL 실행 여부 확인</span>
+<span class="fn">pg_isready</span> -h localhost -p 5432</pre>
+                </div>
+
+                <h4>❌ 소프트 딜리트된 폴더가 목록에 노출됨</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>원인: deletedAt 필터 누락</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt">// ❌ 잘못된 쿼리 — 삭제된 폴더도 반환됨</span>
+<span class="kw">const</span> folders <span class="op">=</span> <span class="kw">await</span> db.meetingFolder.<span class="fn">findMany</span><span class="op">({</span>
+  where<span class="op">: {</span> ownerId<span class="op">:</span> userId <span class="op">}</span>
+<span class="op">})</span>
+
+<span class="cmt">// ✅ 올바른 쿼리 — deletedAt: null 필터 필수</span>
+<span class="kw">const</span> folders <span class="op">=</span> <span class="kw">await</span> db.meetingFolder.<span class="fn">findMany</span><span class="op">({</span>
+  where<span class="op">: {</span> ownerId<span class="op">:</span> userId<span class="op">,</span> deletedAt<span class="op">:</span> <span class="kw">null</span> <span class="op">}</span>   <span class="cmt">// ← 반드시 추가</span>
+<span class="op">})</span></pre>
+                </div>
+            </section>
+
+            <!-- 인증 -->
+            <section id="auth">
+                <h3><span class="section-icon">🔑</span> 인증 문제</h3>
+
+                <h4>❌ 로그인 후 계속 로그인 페이지로 리다이렉트됨</h4>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>원인 1:</strong> <code>AUTH_SECRET</code>이 설정되지 않았거나 짧습니다. JWT 서명에 실패해 세션이 생성되지 않습니다.</p>
+                </div>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>원인 2:</strong> Vercel 환경에서 <code>AUTH_TRUST_HOST=true</code>가 없으면 Host 헤더 불신으로 세션 쿠키가 설정되지 않습니다.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: 환경변수 점검</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 1. AUTH_SECRET 길이 확인 (32자 이상)</span>
+<span class="fn">echo</span> -n "$AUTH_SECRET" | wc -c
+
+<span class="cmt"># 2. .env.local에 아래 항목 확인</span>
+<span class="str">AUTH_SECRET</span>=<span class="cmt">...32자 이상 랜덤 문자열...</span>
+<span class="str">AUTH_TRUST_HOST</span>=<span class="str">true</span></pre>
+                </div>
+
+                <h4>❌ <code>proxy.ts</code> 수정 후 미들웨어가 동작 안 함</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>원인: export 이름 오류</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt">// ❌ 잘못된 export — Next.js 16에서 인식 안 됨</span>
+<span class="kw">export default</span> middleware
+<span class="kw">export const</span> config <span class="op">= {</span> matcher<span class="op">:</span> <span class="str">"..."</span> <span class="op">}</span>
+
+<span class="cmt">// ✅ 올바른 export — proxy와 config를 named export</span>
+<span class="kw">export</span> <span class="op">{</span> auth <span class="kw">as</span> proxy <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
+<span class="kw">export const</span> config <span class="op">= {</span> matcher<span class="op">:</span> <span class="str">"..."</span> <span class="op">}</span></pre>
+                </div>
+
+                <h4>❌ 초기 비밀번호 변경 강제 이동이 안 됨</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>점검: proxy.ts의 passwordChanged 체크</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt">// proxy.ts 내 아래 로직이 있는지 확인</span>
+<span class="kw">if</span> <span class="op">(</span>session<span class="op">?.user &&</span> <span class="op">!</span>session.user.passwordChanged <span class="op">&&</span>
+    <span class="op">!</span>req.nextUrl.pathname.<span class="fn">startsWith</span><span class="op">(</span><span class="str">"/settings/password"</span><span class="op">)) {</span>
+  <span class="kw">return</span> <span class="ty">NextResponse</span>.<span class="fn">redirect</span><span class="op">(</span><span class="kw">new</span> <span class="ty">URL</span><span class="op">(</span><span class="str">"/settings/password"</span><span class="op">,</span> req.url<span class="op">))</span>
+<span class="op">}</span></pre>
+                </div>
+            </section>
+
+            <!-- 웹 푸시 -->
+            <section id="push">
+                <h3><span class="section-icon">🔔</span> 웹 푸시 알림 문제</h3>
+
+                <h4>❌ 푸시 알림이 전혀 오지 않음</h4>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>체크리스트:</strong> 브라우저 알림 권한 허용 여부 → VAPID 키 일치 여부 → Service Worker 등록 여부 → DB의 PushSubscription 레코드 존재 여부를 순서대로 확인하세요.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>디버그: 브라우저 콘솔 확인</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 브라우저 개발자 도구 → Application → Service Workers</span>
+<span class="cmt"># → Status가 "activated"인지 확인</span>
+
+<span class="cmt"># 또는 콘솔에서 구독 상태 확인</span>
+<span class="kw">const</span> reg <span class="op">=</span> <span class="kw">await</span> navigator.serviceWorker.ready
+<span class="kw">const</span> sub <span class="op">=</span> <span class="kw">await</span> reg.pushManager.<span class="fn">getSubscription</span><span class="op">()</span>
+console.<span class="fn">log</span><span class="op">(</span>sub<span class="op">)</span>  <span class="cmt">// null이면 구독되지 않은 상태</span></pre>
+                </div>
+
+                <h4>❌ 푸시 발송 시 <code>410 Gone</code> 에러 로그</h4>
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>정상 동작입니다.</strong> <code>410</code>은 브라우저가 구독을 취소했을 때 푸시 서버가 반환하는 코드입니다. <code>src/lib/push.ts</code>의 <code>sendPushToUser</code>가 자동으로 해당 구독을 DB에서 삭제합니다. 별도 조치 불필요합니다.</p>
+                </div>
+
+                <h4>❌ iOS Safari에서 푸시가 오지 않음</h4>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>원인:</strong> iOS 16.4 미만 Safari는 웹 푸시를 지원하지 않습니다. iOS 16.4 이상이어도 사용자가 직접 홈 화면에 앱을 추가(Add to Home Screen)한 PWA에서만 푸시가 동작합니다. Safari 브라우저 탭에서는 지원되지 않습니다.</p>
+                </div>
+            </section>
+
+            <!-- AI 회의록 -->
+            <section id="ai">
+                <h3><span class="section-icon">🤖</span> AI 회의록 문제</h3>
+
+                <h4>❌ 음성 전사 후 "처리 실패" 오류</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: API 키 및 오디오 형식 확인</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 1. Deepgram API 키 유효성 확인</span>
+<span class="fn">curl</span> -X GET https://api.deepgram.com/v1/projects \
+  -H <span class="str">"Authorization: Token $DEEPGRAM_API_KEY"</span>
+
+<span class="cmt"># 2. Gemini API 키 유효성 확인</span>
+<span class="fn">curl</span> <span class="str">"https://generativelanguage.googleapis.com/v1/models?key=$GEMINI_API_KEY"</span></pre>
+                </div>
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p><strong>지원 오디오 형식:</strong> Deepgram은 mp3, mp4, wav, webm 등 주요 형식을 지원합니다. 브라우저 <code>MediaRecorder</code>가 출력하는 형식(대부분 <code>audio/webm</code>)은 정상 지원됩니다.</p>
+                </div>
+
+                <h4>❌ 화자 분리(speakerMap)가 비어 있거나 이상함</h4>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>원인:</strong> 음성 품질이 낮거나 발화자가 1명일 때 화자 분리 결과가 부정확할 수 있습니다. AI 모델의 한계이며 코드 문제가 아닙니다. <code>speakerMap</code>을 표시하는 UI에서 빈 값 예외 처리가 되어 있는지 확인하세요.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>speakerMap null 안전 처리</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt">// speakerMap은 Json 타입 — 항상 타입 가드 필요</span>
+<span class="kw">const</span> speakerMap <span class="op">=</span> minute.speakerMap <span class="kw">as</span> Record<span class="op">&lt;</span><span class="ty">string</span><span class="op">,</span> <span class="ty">string</span><span class="op">[]&gt;</span> <span class="op">??</span> <span class="op">{}</span>
+<span class="kw">const</span> speakers <span class="op">=</span> Object.<span class="fn">keys</span><span class="op">(</span>speakerMap<span class="op">)</span>
+<span class="kw">if</span> <span class="op">(</span>speakers.length <span class="op">=== 0) {</span>
+  <span class="cmt">// 화자 없음 처리</span>
+<span class="op">}</span></pre>
+                </div>
+            </section>
+
+            <!-- 배포 -->
+            <section id="deploy">
+                <h3><span class="section-icon">🚢</span> 배포 문제</h3>
+
+                <h4>❌ Vercel 빌드 실패 — <code>prisma generate</code> 오류</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: postinstall 스크립트 확인</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># package.json에 postinstall 추가 (Vercel은 npm install 후 자동 실행)</span>
+<span class="op">{</span>
+  <span class="str">"scripts"</span><span class="op">: {</span>
+    <span class="str">"postinstall"</span><span class="op">:</span> <span class="str">"prisma generate"</span><span class="op">,</span>
+    <span class="str">"build"</span><span class="op">:</span> <span class="str">"prisma generate && next build --webpack"</span>
+  <span class="op">}</span>
+<span class="op">}</span></pre>
+                </div>
+
+                <h4>❌ Preview 배포에서만 로그인 안 됨 (Production은 정상)</h4>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p><strong>원인:</strong> Vercel 환경변수에 <code>AUTH_URL</code>이 하드코딩되어 있으면 Preview 배포의 동적 URL과 충돌합니다.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: Vercel에서 AUTH_URL 삭제</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># Vercel 대시보드 → Settings → Environment Variables</span>
+<span class="cmt"># AUTH_URL 항목 삭제 (AUTH_TRUST_HOST=true 만으로 충분)</span></pre>
+                </div>
+
+                <h4>❌ Cron Job이 실행되지 않음</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>점검 체크리스트</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># 1. vercel.json에 cron 설정 확인</span>
+<span class="op">{</span>
+  <span class="str">"crons"</span><span class="op">: [</span>
+    <span class="op">{</span> <span class="str">"path"</span><span class="op">:</span> <span class="str">"/api/cron/daily-schedule-reminder"</span><span class="op">,</span> <span class="str">"schedule"</span><span class="op">:</span> <span class="str">"0 0 * * *"</span> <span class="op">}</span>
+  <span class="op">]</span>
+<span class="op">}</span>
+
+<span class="cmt"># 2. CRON_SECRET이 Vercel Production 환경변수에 설정되어 있는지 확인</span>
+<span class="cmt"># 3. Vercel 대시보드 → Settings → Cron Jobs 탭에서 실행 로그 확인</span></pre>
+                </div>
+            </section>
+
+            <!-- iOS -->
+            <section id="ios">
+                <h3><span class="section-icon">📱</span> iOS 빌드 문제</h3>
+
+                <h4>❌ <code>npx cap sync ios</code> 실행 후 Xcode 빌드 오류</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-label"><span class="lang-badge lang-bash">BASH</span>해결: 웹 빌드 먼저 실행</div>
+                        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                    </div>
+                    <pre><span class="cmt"># cap sync 전에 반드시 웹 빌드가 선행되어야 합니다</span>
+<span class="fn">npm</span> run build       <span class="cmt"># 먼저 실행</span>
+<span class="fn">npx</span> cap sync ios   <span class="cmt"># 이후 실행</span>
+<span class="fn">npx</span> cap open ios</pre>
+                </div>
+
+                <h4>❌ 인증서 만료로 Archive 실패</h4>
+                <div class="info-box warning">
+                    <span class="icon">⚠️</span>
+                    <p>Xcode → Signing & Capabilities에서 팀이 올바르게 설정되어 있는지 확인하세요. 인증서가 만료된 경우 Apple Developer 계정에서 갱신 후 Xcode에서 재다운로드가 필요합니다. 자세한 내용은 <a href="services.html#apple" style="color:var(--primary-light)">외부 서비스 → Apple Developer</a>를 참고하세요.</p>
+                </div>
+
+                <h4>❌ 실기기에서 푸시가 오지 않음 (시뮬레이터는 정상)</h4>
+                <div class="info-box note">
+                    <span class="icon">💡</span>
+                    <p>iOS 시뮬레이터는 웹 푸시를 완전히 지원하지 않습니다. 웹 푸시 관련 기능은 반드시 실기기(iPhone)에서 테스트하세요. 또한 iOS Safari PWA 형태(홈 화면에 추가)가 아닌 Capacitor 네이티브 앱에서 웹 푸시 동작 방식이 다를 수 있습니다.</p>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const pre = btn.closest('.code-block').querySelector('pre');
+            navigator.clipboard.writeText(pre.innerText).then(() => {
+                btn.textContent = '✓ 복사됨';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
