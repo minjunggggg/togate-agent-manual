@@ -321,7 +321,7 @@
 
                 <div class="info-box warning">
                     <span class="icon">⚠️</span>
-                    <p><strong>권한 제어:</strong> <code style="font-family:var(--font-mono)">src/proxy.ts</code>에서 ADMIN 역할 여부를 확인합니다. EMPLOYEE 권한으로 <code style="font-family:var(--font-mono)">/users/new</code>에 접근하면 403 또는 홈으로 리다이렉트됩니다.</p>
+                    <p><strong>권한 제어:</strong> <code style="font-family:var(--font-mono)">src/proxy.ts</code>에서 ADMIN 역할 여부를 확인합니다. EMPLOYEE 권한으로 <code style="font-family:var(--font-mono)">/admin/*</code> 경로에 접근하면 홈(/)으로 리다이렉트됩니다. <code style="font-family:var(--font-mono)">/users/new</code>의 접근 제어는 페이지 컴포넌트 내 <code style="font-family:var(--font-mono)">auth()</code> 세션 검증으로 처리합니다.</p>
                 </div>
             </section>
 
@@ -445,28 +445,60 @@
 
                 <div class="code-block">
                     <div class="code-header">
-                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>src/proxy.ts — passwordChanged 체크</div>
+                        <div class="code-label"><span class="lang-badge lang-ts">TS</span>src/proxy.ts — 인증 · 권한 · 비밀번호 변경 강제</div>
                         <button class="copy-btn" onclick="copyCode(this)">복사</button>
                     </div>
-                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="ty">NextRequest</span><span class="op">,</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
-<span class="kw">import</span> <span class="op">{</span> <span class="fn">auth</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@/lib/auth"</span>
+                    <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">getToken</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"@auth/core/jwt"</span>
+<span class="kw">import</span> <span class="op">{</span> <span class="fn">NextResponse</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
+<span class="kw">import type</span> <span class="op">{</span> <span class="ty">NextRequest</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">"next/server"</span>
 
-<span class="kw">export async function</span> <span class="fn">proxy</span><span class="op">(</span>req<span class="op">:</span> <span class="ty">NextRequest</span><span class="op">) {</span>
-  <span class="kw">const</span> session <span class="op">=</span> <span class="kw">await</span> <span class="fn">auth</span><span class="op">()</span>
-  <span class="kw">const</span> <span class="op">{</span> pathname <span class="op">} =</span> req.nextUrl
+<span class="kw">export async function</span> <span class="fn">proxy</span><span class="op">(</span>request<span class="op">:</span> <span class="ty">NextRequest</span><span class="op">) {</span>
+  <span class="kw">const</span> <span class="op">{</span> pathname <span class="op">} =</span> request.nextUrl
+  <span class="kw">const</span> isSecure <span class="op">=</span> request.url.<span class="fn">startsWith</span><span class="op">(</span><span class="str">"https://"</span><span class="op">)</span>
+  <span class="kw">const</span> cookieName <span class="op">=</span> isSecure
+    <span class="op">?</span> <span class="str">"__Secure-authjs.session-token"</span>
+    <span class="op">:</span> <span class="str">"authjs.session-token"</span>
 
-  <span class="kw">if</span> <span class="op">(!</span>session<span class="op">?.user)</span>
-    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/login"</span><span class="op">,</span> req.url<span class="op">))</span>
+  <span class="kw">const</span> token <span class="op">=</span> <span class="kw">await</span> <span class="fn">getToken</span><span class="op">({</span>
+    req<span class="op">:</span> request<span class="op">,</span>
+    secret<span class="op">:</span> process.env.AUTH_SECRET<span class="op">!,</span>
+    salt<span class="op">:</span> cookieName<span class="op">,</span>
+    secureCookie<span class="op">:</span> isSecure<span class="op">,</span>
+  <span class="op">})</span>
 
-  <span class="kw">if</span> <span class="op">(!</span>session.user.passwordChanged <span class="op">&amp;&amp;</span> pathname <span class="op">!==</span> <span class="str">"/settings/password"</span><span class="op">)</span>
-    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/settings/password"</span><span class="op">,</span> req.url<span class="op">))</span>
+  <span class="kw">const</span> isLoggedIn <span class="op">= !!</span>token
 
-  <span class="kw">if</span> <span class="op">(</span>pathname.<span class="fn">startsWith</span><span class="op">(</span><span class="str">"/admin"</span><span class="op">) &amp;&amp;</span> session.user.role <span class="op">!==</span> <span class="str">"ADMIN"</span><span class="op">)</span>
-    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/"</span><span class="op">,</span> req.url<span class="op">))</span>
+  <span class="cmt">// /login: 로그인 상태면 홈으로, 비로그인은 통과</span>
+  <span class="kw">if</span> <span class="op">(</span>pathname.<span class="fn">startsWith</span><span class="op">(</span><span class="str">"/login"</span><span class="op">)) {</span>
+    <span class="kw">if</span> <span class="op">(</span>isLoggedIn<span class="op">)</span> <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/"</span><span class="op">,</span> request.url<span class="op">))</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.next</span><span class="op">()</span>
+  <span class="op">}</span>
+
+  <span class="cmt">// 비로그인 → /login?callbackUrl=pathname 리다이렉트</span>
+  <span class="kw">if</span> <span class="op">(!</span>isLoggedIn<span class="op">) {</span>
+    <span class="kw">const</span> loginUrl <span class="op">=</span> <span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/login"</span><span class="op">,</span> request.url<span class="op">)</span>
+    <span class="kw">if</span> <span class="op">(</span>pathname <span class="op">!==</span> <span class="str">"/"</span><span class="op">) {</span>
+      loginUrl.searchParams.<span class="fn">set</span><span class="op">(</span><span class="str">"callbackUrl"</span><span class="op">,</span> pathname<span class="op">)</span>
+    <span class="op">}</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span>loginUrl<span class="op">)</span>
+  <span class="op">}</span>
+
+  <span class="cmt">// 최초 로그인 시 비밀번호 변경 페이지로 강제 이동</span>
+  <span class="kw">if</span> <span class="op">(!</span>token<span class="op">?.</span>passwordChanged <span class="op">&amp;&amp; !</span>pathname.<span class="fn">startsWith</span><span class="op">(</span><span class="str">"/settings/password"</span><span class="op">)) {</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/settings/password"</span><span class="op">,</span> request.url<span class="op">))</span>
+  <span class="op">}</span>
+
+  <span class="kw">if</span> <span class="op">(</span>pathname.<span class="fn">startsWith</span><span class="op">(</span><span class="str">"/admin"</span><span class="op">) &amp;&amp;</span> token<span class="op">?.</span>role <span class="op">!==</span> <span class="str">"ADMIN"</span><span class="op">) {</span>
+    <span class="kw">return</span> <span class="fn">NextResponse.redirect</span><span class="op">(</span><span class="kw">new</span> <span class="fn">URL</span><span class="op">(</span><span class="str">"/"</span><span class="op">,</span> request.url<span class="op">))</span>
+  <span class="op">}</span>
+
+  <span class="kw">return</span> <span class="fn">NextResponse.next</span><span class="op">()</span>
 <span class="op">}</span>
 
 <span class="kw">export const</span> config <span class="op">= {</span>
-  matcher<span class="op">: [</span><span class="str">"/((?!login|api/auth|_next|.*\\..*).*)"]</span><span class="op">,</span>
+  matcher<span class="op">: [</span>
+    <span class="str">"/((?!api|_next/static|_next/image|icons|manifest.json|favicon.ico).*)"</span><span class="op">,</span>
+  <span class="op">],</span>
 <span class="op">}</span></pre>
                 </div>
 
@@ -539,7 +571,7 @@ model <span class="ty">Employee</span> <span class="op">{</span>
                 <ul class="checklist">
                     <li><span class="check">✓</span> POST · DELETE /api/admin/users — ADMIN role 서버 검증 필수</li>
                     <li><span class="check">✓</span> 비밀번호 bcrypt (cost factor 12) 해싱</li>
-                    <li><span class="check">✓</span> proxy.ts — ADMIN 전용 라우트(/users/new) 접근 제어</li>
+                    <li><span class="check">✓</span> proxy.ts — ADMIN 전용 라우트(/admin/*) 접근 제어</li>
                     <li><span class="check">✓</span> passwordChanged=false 계정 → /settings/password 강제 이동</li>
                     <li><span class="check">✓</span> 이메일 중복 시 409, 구체적 계정 존재 여부는 노출 금지</li>
                     <li><span class="check">✓</span> 초기 임시 비밀번호는 관리자가 직접 직원에게 전달 (시스템 발송 없음)</li>
